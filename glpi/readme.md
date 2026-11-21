@@ -4,7 +4,7 @@ Fecha del laboratorio: 18/11/2026.
 Resumen de lo que hice, paso a paso, para instalar GLPI y practicar el ciclo de un ticket de soporte.
 
 > **Aviso de alcance (importante).** Este laboratorio es una **primera toma de contacto**, no experiencia en producción. Seguí una guía de instalación (computingforgeeks.com, "How To Install GLPI on Ubuntu 24.04") y comandos propuestos por un asistente de IA, y la mayor parte fue copiar, pegar y verificar el resultado. Los usuarios, el ticket y los artículos son de prueba, creados por mí en mi propia VM. No tengo experiencia usando un sistema de tickets en una empresa.
-
+>
 > **Nota de actualización (20/11/2026).** Este laboratorio describe la red como estaba el día que lo hice. Después rediseñé la red del proyecto Network Operations Lab y algunos datos de abajo ya no son los actuales: la VM ya no va en puente (hoy es `192.168.10.14` en `lab-core` y `192.168.56.14` de gestión); la RAM bajó de 2 GB a 1 GB; la zona horaria del sistema y de PHP ya es `America/Caracas`; y el límite de 3 VMs encendidas se descartó (caben 5). El texto original no se modificó, para conservar lo que hice en su momento. Estado actual: [arquitectura](../docs/arquitectura.md) y [direccionamiento](../docs/direccionamiento.md).
 
 ---
