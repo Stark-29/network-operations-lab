@@ -7,8 +7,6 @@ Resumen de lo que hice, paso a paso, para instalar GLPI y practicar el ciclo de 
 
 > **Nota de actualización (20/11/2026).** Este laboratorio describe la red como estaba el día que lo hice. Después rediseñé la red del proyecto Network Operations Lab y algunos datos de abajo ya no son los actuales: la VM ya no va en puente (hoy es `192.168.10.14` en `lab-core` y `192.168.56.14` de gestión); la RAM bajó de 2 GB a 1 GB; la zona horaria del sistema y de PHP ya es `America/Caracas`; y el límite de 3 VMs encendidas se descartó (caben 5). El texto original no se modificó, para conservar lo que hice en su momento. Estado actual: [arquitectura](../docs/arquitectura.md) y [direccionamiento](../docs/direccionamiento.md).
 
-Las marcas `[completar: ...]` señalan datos que no registré durante el laboratorio y que conviene anotar.
-
 ---
 
 ## 1. Objetivo
