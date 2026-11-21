@@ -4,7 +4,7 @@ Fecha del laboratorio: 18/11/2026.
 Resumen de lo que hice, paso a paso, en mi primer contacto con MikroTik RouterOS.
 
 > **Aviso de alcance (importante).** Este laboratorio es una **primera toma de contacto**, no experiencia en producción. Seguí guías (la documentación oficial de MikroTik para instalar el CHR en VirtualBox y otras) y comandos propuestos por un asistente de IA, y la mayoría de lo que hice fue copiarlos, ejecutarlos, verificar el resultado y reportar las salidas. Lo que sí aporté: montar el entorno, ejecutar y comprobar cada paso, leer las salidas, y resolver (con ayuda) los problemas que fueron saliendo, que están documentados abajo con su causa o con "causa no determinada" cuando no la encontré.
-
+>
 > **Nota de actualización (20/11/2026).** Este laboratorio describe la red como estaba el día que lo hice. Después rediseñé la red del proyecto Network Operations Lab y algunos datos de abajo ya no son los actuales: `ether1` ya no va en puente (hoy es `192.168.10.12` en `lab-core`); la red `lab-lan` ahora se llama `lab-clientes`; hay un `ether3` de gestión (`192.168.56.12`); la regla "lab no ve la casa" apunta a una red que ya no se usa; y el límite de 3 VMs encendidas se descartó (caben 5). El texto original no se modificó, para conservar lo que hice en su momento. Estado actual: [arquitectura](../docs/arquitectura.md) y [direccionamiento](../docs/direccionamiento.md).
 
 ---
