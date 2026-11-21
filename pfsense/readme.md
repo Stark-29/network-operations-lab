@@ -3,7 +3,7 @@
 Instalación y configuración básica de un firewall/router pfSense en una VM de VirtualBox, con una LAN de laboratorio aislada y una VM cliente (`cliente1`) que sale a internet a través de él. Este laboratorio es una pieza de un proyecto mayor que integrará MikroTik CHR, LibreNMS, GLPI y pfSense.
 
 > **Nota de transparencia:** seguí este laboratorio con instrucciones paso a paso de una IA (asistente de chat). No es experiencia en producción: es mi **primera toma de contacto con pfSense**. Lo documenté para entender cada pieza y poder explicarla. No he operado pfSense en una red real.
-
+>
 > **Nota de actualización (20/11/2026).** Este laboratorio describe la red como estaba el día que lo hice. Después rediseñé la red del proyecto Network Operations Lab y algunos datos de abajo ya no son los actuales: la LAN de pfSense pasó de `lab-lan` a `lab-core`; `cliente1` ya no cuelga de pfSense sino del CHR; la RAM de la VM bajó de 2 GB a 1 GB; la web se administra por `https://192.168.56.11`, sin túnel SSH; y ya existen reservas DHCP. El texto original no se modificó, para conservar lo que hice en su momento. Estado actual: [arquitectura](../docs/arquitectura.md) y [direccionamiento](../docs/direccionamiento.md).
 
 **Fecha:** 19/11/2026
