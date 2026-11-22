@@ -7,6 +7,8 @@ Firewall/router **pfSense CE** de un laboratorio en VirtualBox: es el borde de u
 Diseño completo de la red: [arquitectura](../docs/arquitectura.md) y [direccionamiento](../docs/direccionamiento.md). Capturas en [`capturas/`](capturas/). La primera toma de contacto con pfSense, antes de rediseñar la red, está en [`primer-laboratorio.md`](primer-laboratorio.md).
 
 > **Nota de transparencia:** es un laboratorio en VirtualBox, seguido con ayuda de una IA (asistente de chat). No es experiencia en producción y no he operado pfSense en una red real. Lo que no pude verificar está marcado como "no verificado" o "no probado", y las causas que no determiné quedan como "causa no determinada".
+>
+> **Nota de actualización (22/11/2026).** Este documento describe pfSense como quedó el 21/11/2026. En la etapa de integración cambió: hay un gateway CHR_LAB (192.168.10.12) y dos rutas estáticas hacia 10.10.10.0/24 y 10.10.20.0/24; el CHR dejó de enmascarar, así que el NAT lo hace solo pfSense (ya no hay doble NAT); y las reglas de la LAN usan el alias LAB_NETS como origen, con una regla nueva "lab a internet". Detalle y pruebas: [integración](../integracion/readme.md). Las capturas y el config redactado de esta carpeta son del 21/11/2026.
 
 ## Entorno
 
@@ -103,7 +105,7 @@ Consultando directamente desde el shell de pfSense con `drill`:
 
 pfSense evalúa las reglas de arriba hacia abajo y gana la primera que coincide; lo que ninguna permite, se bloquea. Además existe una regla oculta de **antilockout** que pfSense coloca en la LAN y que deja entrar a la web y al SSH desde la LAN pase lo que pase en las demás reglas. Como GESTION es un canal de administración aparte, la desactivé al final (System → Advanced → Admin Access) y dejé que las reglas decidan quién administra pfSense.
 
-Reglas añadidas en la pestaña LAN, todas IPv4 y con origen `LAN subnets` ([captura](capturas/17b-reglas-lan-final.png), con contadores):
+Reglas añadidas en la pestaña LAN el 21/11/2026, todas IPv4 y con origen LAN subnets (desde el 22/11 usan el alias LAB_NETS; ver la nota de actualización) ([captura](capturas/17b-reglas-lan-final.png), con contadores):
 
 | Acción | Protocolo | Destino | Log | Descripción | Para qué |
 |---|---|---|---|---|---|
@@ -131,7 +133,7 @@ Pruebas desde `librenms` (VPN encendida; "—" = no repetido) ([base](capturas/1
 - DHCP: tras `sudo networkctl renew enp0s3`, `glpi` conservó `192.168.10.14` ([captura](capturas/13-dhcp-renovacion-glpi.png)). No comprobé que la renovación terminara. Creo que pfSense permite su propio DHCP aparte de las reglas del usuario, pero no lo verifiqué.
 - Los bloqueos quedaron en el log ([captura](capturas/18-log-bloqueos.png)).
 
-**Nota:** todas las reglas usan \LAN subnets`. Al 21/11/2026 el CHR enmascara y pfSense ve a `cliente1` como `192.168.10.12`, así que queda cubierto. Si el CHR dejara de enmascarar, el origen sería `10.10.10.0/24` y habría que revisarlas.
+**Nota:** las pruebas de este documento se hicieron con las reglas en LAN subnets. El 22/11/2026 se cambió el origen a LAB_NETS (lab-core, lab-clientes y la VLAN 10) para cubrir a los clientes detrás del CHR, que ahora llegan con su IP real; ver [integración](../integracion/readme.md)
 
 ## 6. Respaldo, restauración y copia sin secretos
 
