@@ -62,7 +62,8 @@ Si se regeneran las MAC de una VM, hay que actualizar su reserva. La IP va en el
 
 ## 5. Nombres de DNS y servicios
 
-- DNS de la LAN: pfSense (`192.168.10.1`), en modo reenvío a `1.1.1.1` y `8.8.8.8`.
+- DNS de la LAN: pfSense (`192.168.10.1`), en modo reenvío a `10.0.2.3` (único servidor; con la VPN del PC encendida, `1.1.1.1` y `8.8.8.8` no responden desde el laboratorio).
+- Hora de la LAN: pfSense (`192.168.10.1`, UDP 123) para `chr`, `glpi` y `librenms`.
 - DNS que el CHR entrega a `lab-clientes`: `8.8.8.8` (del lab de MikroTik) `[revisar en el chat 4]`.
 
 ## 6. Acceso desde mi PC
@@ -74,6 +75,7 @@ Si se regeneran las MAC de una VM, hay que actualizar su reserva. La IP va en el
 | LibreNMS | `http://192.168.56.13` |
 | GLPI | `http://192.168.56.14` |
 | SSH a las Ubuntu | `ssh robert@192.168.56.13` y `.14`; `cliente1` por su IP de gestión |
+| SSH a pfSense | `ssh admin@192.168.56.11` |
 
 ## 7. Rutas por defecto
 
