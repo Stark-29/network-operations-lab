@@ -68,7 +68,7 @@ El modo de Outbound NAT está en **automático**: pfSense genera una regla por c
 Demostración con la tabla de estados:
 
 - Un `ping` de `librenms` a `9.9.9.9` aparece como `10.0.2.15:28790 (192.168.10.13:17352) -> 9.9.9.9`: la IP traducida va fuera del paréntesis y la original dentro ([captura](capturas/05-nat-estado-librenms.png)).
-- El mismo `ping` desde `cliente1` a `8.8.4.4` aparece con origen `192.168.10.12`, que es el CHR, no `cliente1` ([captura](capturas/06-nat-estado-cliente1.png)). El CHR enmascara antes, así que hoy hay **doble NAT**. Dónde se hace NAT es una decisión pendiente.
+- El mismo `ping` desde `cliente1` a `8.8.4.4` aparece con origen `192.168.10.12`, que es el CHR, no `cliente1` ([captura](capturas/06-nat-estado-cliente1.png)). El CHR enmascara antes, así que al 21/11/2026 hay **doble NAT**.
 - Los 60 pings de una prueba generan un solo estado, no 60: pf registra flujos, no paquetes.
 
 ## 4. DNS
@@ -131,7 +131,7 @@ Pruebas desde `librenms` (VPN encendida; "—" = no repetido) ([base](capturas/1
 - DHCP: tras `sudo networkctl renew enp0s3`, `glpi` conservó `192.168.10.14` ([captura](capturas/13-dhcp-renovacion-glpi.png)). No comprobé que la renovación terminara. Creo que pfSense permite su propio DHCP aparte de las reglas del usuario, pero no lo verifiqué.
 - Los bloqueos quedaron en el log ([captura](capturas/18-log-bloqueos.png)).
 
-**Pendiente para la integración:** todas las reglas usan `LAN subnets`. Hoy el CHR enmascara y pfSense ve a `cliente1` como `192.168.10.12`, así que queda cubierto. Si se quita el NAT del CHR, el origen pasará a `10.10.10.0/24` y habrá que revisarlas.
+**Nota:** todas las reglas usan \LAN subnets`. Al 21/11/2026 el CHR enmascara y pfSense ve a `cliente1` como `192.168.10.12`, así que queda cubierto. Si el CHR dejara de enmascarar, el origen sería `10.10.10.0/24` y habría que revisarlas.
 
 ## 6. Respaldo, restauración y copia sin secretos
 
@@ -190,11 +190,7 @@ Consecuencia: si pfSense se apaga, esos tres equipos pierden su fuente de hora.
 - IPv6: la regla de fábrica no se tocó y no se probó nada con IPv6.
 - SSH solo con contraseña; no se configuró autenticación por llave pública.
 - SSH al gateway desde la LAN con el antilockout activo: no probado (solo el puerto 443).
-- SNMP (Simple Network Management Protocol) para que LibreNMS monitoree pfSense.
-- Decidir dónde se hace NAT (hoy hay doble NAT: el CHR y pfSense) y revisar las reglas si cambia el origen que ve pfSense.
-- Pruebas de punta a punta y matriz de pruebas del firewall.
-- DNS: causa del fallo original no determinada; no se averiguó cómo la VPN del anfitrión bloquea los DNS públicos; el DNS que el CHR entrega a `lab-clientes` no se revisó.
-- VLANs.
+- DNS: causa del fallo original no determinada; no se averiguó cómo la VPN del anfitrión bloquea los DNS públicos;
 - Sin experiencia en producción con pfSense.
 
 ## Referencias
