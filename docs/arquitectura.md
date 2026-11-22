@@ -120,9 +120,9 @@ Todos los equipos en `America/Caracas` (UTC-4).
 | pfSense | `2.pfsense.pool.ntp.org` (por defecto) |
 | chr | `192.168.10.1` (pfSense) |
 | glpi y librenms | `192.168.10.1` (pfSense) |
-| cliente1 | `192.168.10.1` (pfSense); de dónde sale esa configuración no está determinado |
+| cliente1 | `192.168.10.1` (pfSense), recibido en el lease DHCP del CHR |
 
-pfSense es el servidor de hora interno de `chr`, `glpi` y `librenms` (regla UDP 123 en la LAN). `cliente1` también se sincroniza con `192.168.10.1` (verificado el 22/11/2026 con `timedatectl timesync-status`, estrato 3), aunque los documentos anteriores decían que usaba el de Ubuntu por defecto. El DHCP del CHR no entrega servidor NTP. Si pfSense se apaga, `chr`, `glpi` y `librenms` pierden su fuente de hora. Todos marcan la misma hora.
+pfSense es el servidor de hora interno de `chr`, `glpi` y `librenms` (regla UDP 123 en la LAN). `cliente1` también se sincroniza con `192.168.10.1` (verificado el 22/11/2026 con `timedatectl timesync-status`, estrato 3): el lease DHCP del CHR trae `NTP=192.168.10.1`, aunque el `ntp-server` de la red DHCP del CHR está vacío (por qué lo envía no está determinado). Los documentos anteriores decían que usaba el de Ubuntu por defecto. Si pfSense se apaga, `chr`, `glpi` y `librenms` pierden su fuente de hora. Todos marcan la misma hora.
 
 GLPI: además de la zona del sistema, se fijó `date.timezone = America/Caracas` en el `php.ini` de Apache y en el de consola. Antes, `cron.log` y `event.log` marcaban UTC.
 
@@ -151,6 +151,6 @@ Las 5 VMs caben a la vez. Se descarta el límite de 3. El margen, de unos 4 a 5 
 - Por qué el DNS de pfSense necesitó el modo reenvío en el primer laboratorio (no se reprodujo).
 - SSH al gateway desde la LAN con el antilockout activo (solo se probó el puerto 443).
 - Por qué el CHR consultaba `8.8.8.8` por TCP 53. Hipótesis sin verificar: eran consultas de `cliente1`, vistas con origen `192.168.10.12` por el antiguo masquerade. Con el DNS nuevo, `cliente1` ya no usa `8.8.8.8`.
-- De dónde sale la configuración NTP de `cliente1`.
+- Por qué el DHCP del CHR entrega `NTP=192.168.10.1` a `cliente1` si el `ntp-server` de su red DHCP está vacío.
 - Por qué el primer ping de la VLAN 10, justo después de `netplan apply`, tardó 2294 ms (no se reprodujo).
 - El enrutamiento asimétrico de `cliente1` hacia `glpi` y `librenms`: la explicación (pfSense descarta respuestas de conexiones que no vio empezar) es probable pero no se verificó en las reglas de pf.

@@ -66,7 +66,7 @@ Si se regeneran las MAC de una VM, hay que actualizar su reserva. La IP va en el
 
 - DNS de la LAN: pfSense (`192.168.10.1`), en modo reenvío a `10.0.2.3` (único servidor; con la VPN del PC encendida, `1.1.1.1` y `8.8.8.8` no responden desde el laboratorio).
 - DNS que el CHR entrega a `lab-clientes`: `10.10.10.1` (el propio CHR, como relevo). El CHR obtiene su DNS de pfSense (`192.168.10.1`) por DHCP y tiene `allow-remote-requests=yes`.
-- Hora de la LAN: pfSense (`192.168.10.1`, UDP 123) para `chr`, `glpi` y `librenms`. `cliente1` también se sincroniza con `192.168.10.1`; de dónde sale esa configuración no está determinado (ver [arquitectura](arquitectura.md#7-hora)).
+- Hora de la LAN: pfSense (`192.168.10.1`, UDP 123) para `chr`, `glpi` y `librenms`. `cliente1` también se sincroniza con `192.168.10.1`, que le llega en el lease DHCP del CHR (ver [arquitectura](arquitectura.md#7-hora)).
 
 ## 6. Acceso desde mi PC
 
