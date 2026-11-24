@@ -2,7 +2,7 @@
 
 Notas propias de mis laboratorios, para repasar antes de entrevistas. Todo es de laboratorio, no de producción. Cuando algo no lo pude explicar o confirmar, lo marco.
 
-> **Nota de actualización (20/11/2026).** Este laboratorio describe la red como estaba el día que lo hice. Después rediseñé la red del proyecto Network Operations Lab y algunos datos de abajo ya no son los actuales: la VM ya no va en puente (hoy es `192.168.10.13` en `lab-core` y `192.168.56.13` de gestión; la `192.168.1.102` ya no existe); la RAM bajó de 4 GB a 2 GB; y el dispositivo viejo sigue registrado en LibreNMS hasta el chat 5. El texto original no se modificó, para conservar lo que hice en su momento. Estado actual: [arquitectura](../docs/arquitectura.md) y [direccionamiento](../docs/direccionamiento.md).
+> **Nota de actualización (23/11/2026).** Este laboratorio describe la red como estaba el día que lo hice. Después rediseñé la red del proyecto Network Operations Lab y algunos datos de abajo ya no son los actuales: la VM ya no va en puente (hoy es `192.168.10.13` en `lab-core` y `192.168.56.13` de gestión; la `192.168.1.102` ya no existe); la RAM bajó de 4 GB a 2 GB; y el dispositivo viejo y el router de casa se borraron de LibreNMS. Las alertas por Telegram y la explicación de por qué la caída de 3 minutos no alertó están en [readme.md](readme.md). El texto original no se modificó, para conservar lo que hice en su momento. Estado actual de la red: [arquitectura](../docs/arquitectura.md) y [direccionamiento](../docs/direccionamiento.md).
 ---
 
 ## Laboratorio 1: Monitoreo con LibreNMS (nov. 2026)
