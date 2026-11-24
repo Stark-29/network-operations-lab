@@ -8,7 +8,7 @@ Diseño completo de la red: [arquitectura](../docs/arquitectura.md) y [direccion
 
 > **Nota de transparencia:** es un laboratorio en VirtualBox, seguido con ayuda de una IA (asistente de chat). No es experiencia en producción y no he operado pfSense en una red real. Lo que no pude verificar está marcado como "no verificado" o "no probado", y las causas que no determiné quedan como "causa no determinada".
 >
-> **Nota de actualización (22/11/2026).** Este documento describe pfSense como quedó el 21/11/2026. En la etapa de integración cambió: hay un gateway CHR_LAB (192.168.10.12) y dos rutas estáticas hacia 10.10.10.0/24 y 10.10.20.0/24; el CHR dejó de enmascarar, así que el NAT lo hace solo pfSense (ya no hay doble NAT); y las reglas de la LAN usan el alias LAB_NETS como origen, con una regla nueva "lab a internet". Detalle y pruebas: [integración](../integracion/readme.md). Las capturas y el config redactado de esta carpeta son del 21/11/2026.
+> **Nota de actualización (22/11/2026).** Este documento describe pfSense como quedó el 21/11/2026. En la etapa de integración cambió: hay un gateway CHR_LAB (192.168.10.12) y dos rutas estáticas hacia 10.10.10.0/24 y 10.10.20.0/24; el CHR dejó de enmascarar, así que el NAT lo hace solo pfSense (ya no hay doble NAT); y las reglas de la LAN usan el alias LAB_NETS como origen, con una regla nueva "lab a internet". Detalle y pruebas: [integración](../integracion/readme.md). Las capturas y el config redactado de esta carpeta son del 21/11/2026. El 23/11/2026 se añadió el servicio SNMP (solo en la LAN) y la regla `snmp desde librenms` (UDP 161, origen `192.168.10.13`); detalle en [librenms](../librenms/readme.md).
 
 ## Entorno
 
@@ -43,7 +43,7 @@ Durante todas las pruebas el PC anfitrión tuvo una VPN (NordVPN) encendida, sal
 | SSH | Habilitado; puerto 22 abierto solo desde `192.168.56.0/24` (interfaz GESTION) | Verificado |
 | NAT saliente | Modo automático; traducción observada en la tabla de estados | Verificado |
 | DNS | Único servidor `10.0.2.3` y reenvío activado; con la VPN encendida fallan `1.1.1.1` y `8.8.8.8` | Verificado; mecanismo de la VPN sin determinar |
-| Reglas de la LAN | 5 reglas propias: ping, DNS y NTP al gateway, bloqueo a pfSense y bloqueo a la red de casa | Verificado; el puerto 22 con el antilockout activo no se probó |
+| Reglas de la LAN | 6 reglas propias: ping, DNS y NTP al gateway, SNMP desde librenms (23/11/2026), bloqueo a pfSense y bloqueo a la red de casa | Verificado; el puerto 22 con el antilockout activo no se probó |
 | Antilockout | Desactivado; la administración queda solo por GESTION | Verificado |
 | Respaldo | Restauración probada con un cambio real | Verificado |
 | Reinicio | Unos 1 min 40 s; todo volvió igual | Verificado |
@@ -112,6 +112,7 @@ Reglas añadidas en la pestaña LAN el 21/11/2026, todas IPv4 y con origen LAN s
 | Pass | ICMP (echo request) | LAN address | no | `ping al gateway` | Primer paso del diagnóstico "usuario sin internet"; LibreNMS lo usará para monitorear |
 | Pass | TCP/UDP 53 | LAN address | no | `dns al gateway` | Los equipos usan a pfSense como DNS |
 | Pass | UDP 123 | LAN address | no | `ntp al gateway` | NTP interno (sección 9); va por encima del bloqueo |
+| Pass | UDP 161 | LAN address | no | `snmp desde librenms` | Solo desde `192.168.10.13`: LibreNMS consulta el SNMP de pfSense |
 | Block | Any | This Firewall (self) | sí | `lan no administra pfsense` | La LAN no llega a la web ni al SSH de pfSense, ni por su IP LAN, WAN o GESTION |
 | Block | Any | Network `192.168.1.0/24` | sí | `lab no ve la casa` | El NAT de VirtualBox deja llegar a la red de casa; el laboratorio no debe tocarla |
 
