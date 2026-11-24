@@ -14,7 +14,7 @@ Diseño completo de la red: [arquitectura](../docs/arquitectura.md) y [direccion
 |---|---|
 | Hipervisor | VirtualBox |
 | VM `librenms` | Ubuntu Server 24.04, 2 GB de RAM; `lab-core` `192.168.10.13` y gestión `192.168.56.13` |
-| LibreNMS | 26.12.0-dev.38 (según `validate.php`) con Nginx, PHP 8.4.27, MariaDB 10.11.14 y RRDTool 1.7.2 |
+| LibreNMS | 26.12.0-dev.85 (según `validate.php`) con Nginx, PHP 8.4.27, MariaDB 10.11.14 y RRDTool 1.7.2 |
 | SNMP en la VM | net-snmp 5.9.4.pre2 |
 | Equipos monitoreados | `pfsense` (`.1`), `chr` (`.12`), `librenms` (`.13`) y `glpi` (`.14`), todos por su IP de `lab-core` |
 | Canal de alertas | Bot de Telegram |
@@ -108,7 +108,7 @@ Las gráficas tienen un hueco de varias horas por un corte de luz en mi casa, co
 
 ## 5. Alertas por Telegram
 
-**Canal.** Elegí Telegram y no el correo porque el token de un bot se puede revocar en BotFather y no da acceso a ningún buzón; enviar por Gmail habría pedido una contraseña de aplicación de una cuenta de correo mía. El token y el ID del chat están solo en LibreNMS, no en el repo. El transporte `telegram-lab` (Alerts → Alert Transports) es de tipo Telegram, con formato HTML, el campo de hilo vacío (solo sirve en grupos con temas, no lo verifiqué) y "Default alert" apagado. El botón de prueba mandó un mensaje al celular ([captura](capturas/09-telegram-prueba.png)). Antes comprobé desde la VM que el nombre `api.telegram.org` resuelve y que `curl` recibe una respuesta HTTP 302 (una redirección; lo que importaba era llegar y no recibir `000`) ([documentación](https://docs.librenms.org/Alerting/Transports/Telegram)).
+**Canal.** Elegí Telegram y no el correo porque el token de un bot se puede revocar en BotFather y no da acceso a ningún buzón; enviar por Gmail habría pedido una contraseña de aplicación de una cuenta de correo mía. El token y el ID del chat están solo en LibreNMS, no en el repo. El transporte `telegram-lab` (Alerts → Alert Transports) es de tipo Telegram, con formato HTML, el campo de hilo (Thread ID) en 0 (el formulario pedía un número entero; no verifiqué qué hace ese valor, y el mensaje llegó bien) y "Default alert" apagado. El botón de prueba mandó un mensaje al celular ([captura](capturas/09-telegram-prueba.png)). Antes comprobé desde la VM que el nombre `api.telegram.org` resuelve y que `curl` recibe una respuesta HTTP 302 (una redirección; lo que importaba era llegar y no recibir `000`) ([documentación](https://docs.librenms.org/Alerting/Transports/Telegram)).
 
 **Operación.** En esta versión de LibreNMS una regla sin Operación levanta la alerta pero no notifica a nadie ([documentación](https://docs.librenms.org/Alerting/Operations/)). Mi lista de reglas decía "No operation (notifications suppressed)" en todas, y el desplegable "Operation" de la regla salía vacío porque no existía ninguna ([captura](capturas/08-reglas-device-down.png)). Creé la Operación `notificar-telegram`: un segmento, pasos 1 a 1, inicio en 0 s, duración de paso 60 s y el transporte `telegram-lab` ([captura](capturas/08c-operacion-telegram.png)). La "duración de paso por defecto" quedó en 0; supuse que solo se usa en segmentos sin duración propia (no verificado) y aquí no influye, porque el segmento tiene un solo paso.
 
@@ -185,7 +185,7 @@ Seguí la documentación de LibreNMS, pfSense y MikroTik con ayuda de una IA. Cu
 
 ## Versiones y herramientas
 
-- LibreNMS 26.12.0-dev.38, PHP 8.4.27, MariaDB 10.11.14, RRDTool 1.7.2, net-snmp 5.9.4.pre2, Python 3.12.3, Composer 2.11.2
+- LibreNMS 26.12.0-dev.85, PHP 8.4.27, MariaDB 10.11.14, RRDTool 1.7.2, net-snmp 5.9.4.pre2, Python 3.12.3, Composer 2.11.2
 - pfSense CE 2.9.1-RELEASE (amd64) y MikroTik RouterOS 7.25.1 (`chr`)
 - Ubuntu Server 24.04 (`librenms`, `glpi`, `cliente1`)
 - VirtualBox, bot de Telegram y PowerShell con OpenSSH
