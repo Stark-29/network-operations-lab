@@ -4,7 +4,7 @@
 
 Esta etapa conecta las piezas del laboratorio en una sola red: pfSense en el borde, un router MikroTik CHR detrás y los clientes detrás del CHR. Decidí dónde se hace el NAT, quién reparte DHCP y qué DNS reciben los clientes, dejé persistente la VLAN 10 y probé de punta a punta con ping, traceroute y DNS.
 
-Diseño de la red: [arquitectura](../docs/arquitectura.md) y [direccionamiento](../docs/direccionamiento.md). Configuración de pfSense: [pfsense/readme.md](../pfsense/readme.md). Primer contacto con el CHR: [mikrotik](../mikrotik/). Capturas en [`capturas/`](capturas/).
+Diseño de la red: [arquitectura](../docs/arquitectura.md) y [direccionamiento](../docs/direccionamiento.md). Configuración de pfSense: [pfsense/readme.md](../pfsense/readme.md). Primer contacto con el CHR: [mikrotik](../mikrotik/). Capturas en [`capturas/`](capturas/). Pruebas en [`pruebas/`](pruebas/).
 
 > **Nota de transparencia:** es un laboratorio en VirtualBox, seguido con ayuda de una IA (asistente de chat). No es experiencia en producción. Lo que no pude verificar está marcado como "no verificado" o "no probado", y las causas que no determiné quedan como "causa no determinada".
 
@@ -44,7 +44,7 @@ La red de gestión (solo-anfitrión, `192.168.56.0/24`) no cambia; está en [arq
 | DNS de `lab-clientes` | El CHR hace de relevo y entrega `10.10.10.1` | Verificado con `cliente1` |
 | Rutas | Estáticas en pfSense hacia las redes del CHR; estáticas en `glpi` y `librenms` hacia el CHR | Verificado |
 | VLAN 10 | Persistente en `cliente1` (netplan); sale a internet | Verificado tras reinicio |
-| Lab sin acceso a la casa | Lo bloquea pfSense con el origen real | Verificado con `cliente1`; VLAN 10 no probada |
+| Lab sin acceso a la casa | Lo bloquea pfSense con el origen real | Verificado con `cliente1`; VLAN 10 probada el 24/11/2026 (pruebas) |
 | Enrutamiento asimétrico | Fallaba `cliente1` → `glpi`; corregido con rutas en los servidores | Explicación probable, no verificada en pf |
 
 ## Decisiones
@@ -157,7 +157,7 @@ network:
 
 ([captura](capturas/18-glpi-rutas-netplan.png)). Tras `netplan apply`, `cliente1` llegó a `glpi` y a `librenms` por el puerto 80, y el traceroute a `glpi` fue de 2 saltos (`10.10.10.1` y `192.168.10.14`), sin pasar por pfSense ([captura](capturas/19-cliente1-a-servidores.png)).
 
-**Consecuencia.** El tráfico entre clientes y servidores ya no pasa por pfSense. Hoy el CHR, sin reglas, es el único punto donde se podría filtrar.
+**Consecuencia.** El tráfico entre clientes y servidores ya no pasa por pfSense. El CHR es el único punto donde se filtra; desde el 24/11/2026 tiene 3 reglas de forward (ver pruebas)
 
 ## 10. VLAN 10 persistente en `cliente1`
 
@@ -219,7 +219,7 @@ Con todo funcionando, apagué cada VM de forma limpia y tomé el snapshot `integ
 
 ## Qué no se hizo
 
-- El CHR no filtra: el tráfico entre clientes y servidores pasa sin reglas, y ya no atraviesa pfSense.
+- El CHR filtra solo clientes hacia servidores, sin regla final de descarte (ver pruebas); ese tráfico no atraviesa pfSense.
 - El DNS del CHR queda abierto en todas sus interfaces (`allow-remote-requests=yes`), sin reglas de entrada.
 - `lab a internet` permite todo hacia fuera; no se restringió por puertos.
 - IPv6: no se probó nada.
