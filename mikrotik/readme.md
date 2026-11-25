@@ -5,7 +5,7 @@ Resumen de lo que hice, paso a paso, en mi primer contacto con MikroTik RouterOS
 
 > **Alcance y transparencia:** laboratorio en VirtualBox con apoyo de IA (sin experiencia en producción). Se ejecutaron y verificaron los comandos paso a paso, documentando causas cuando se identificaron y marcando como "causa no determinada" o "no probado" lo que corresponda.
 >
-> **Estado actual (23/11/2026):** el CHR actúa como router interno (`192.168.10.12` en `lab-core`, gestión en `192.168.56.12`, DHCP y relevo DNS en `lab-clientes`), sin NAT ni reglas de red de casa (delegadas a pfSense), con `lab-limite` activo y SNMP v2c restringido a `192.168.10.13` para LibreNMS. El cuerpo de este documento conserva el montaje original; el detalle de cambios por fecha está en la **sección 8** al final y las referencias vigentes en [arquitectura](../docs/arquitectura.md), [direccionamiento](../docs/direccionamiento.md), [integración](../integracion/readme.md) y [librenms](../librenms/readme.md).
+> **Estado actual (24/11/2026):** el CHR actúa como router interno (`192.168.10.12` en `lab-core`, gestión en `192.168.56.12`, DHCP y relevo DNS en `lab-clientes`), sin NAT ni reglas de red de casa (delegadas a pfSense), con `lab-limite` activo y SNMP v2c restringido a `192.168.10.13` para LibreNMS. El cuerpo de este documento conserva el montaje original; 3 reglas de forward, SSH y Winbox solo desde 192.168.56.1; el detalle de cambios por fecha está en la **sección 8** al final y las referencias vigentes en [arquitectura](../docs/arquitectura.md), [direccionamiento](../docs/direccionamiento.md), [integración](../integracion/readme.md), [pruebas](../integracion/pruebas.md) y [librenms](../librenms/readme.md).
 
 ---
 
@@ -251,8 +251,9 @@ Atajos: en el terminal de RouterOS, Tab completa comandos y `?` muestra opciones
 ## 8. Historial de cambios posteriores al montaje original
 
 - **20/11/2026 (rediseño de red):** `ether1` pasó de puente a `192.168.10.12` (`lab-core`); `lab-lan` pasó a `lab-clientes`; se añadió gestión en `ether3` (`192.168.56.12`); quedó obsoleta la regla hacia la red de casa y se descartó el tope de 3 VMs encendidas (5 VMs en el lab). Detalle en [arquitectura](../docs/arquitectura.md) y [direccionamiento](../docs/direccionamiento.md).
-- **22/11/2026 (integración):** se retiró el enmascaramiento NAT del CHR (queda en pfSense), se eliminaron el `dst-nat` del puerto 2222 y el filtro hacia la red de casa, se configuró relevo DNS (`allow-remote-requests=yes` y DNS `10.10.10.1` por DHCP en lugar de `8.8.8.8`), se dejó VLAN 10 persistente en `cliente1` con `netplan` y se conservó `lab-limite`. Detalle en [integración](../integracion/readme.md).
+- **22/11/2026 (integración):** se retiró el enmascaramiento NAT del CHR (queda en pfSense), se eliminaron el `dst-nat` del puerto 2222 y el filtro hacia la red de casa, se configuró relevo DNS (`allow-remote-requests=yes` y DNS `10.10.10.1` por DHCP en lugar de `8.8.8.8`), se dejó VLAN 10 persistente desde el 22/11/2026 en `cliente1` con `netplan` y se conservó `lab-limite`. Detalle en [integración](../integracion/readme.md).
 - **23/11/2026 (monitoreo):** se renombró la comunidad SNMP por defecto (`public`), se habilitó SNMP v2c solo para `192.168.10.13` y se integró el sondeo desde LibreNMS. Detalle y pruebas en [librenms](../librenms/readme.md).
+- **24/11/2026 (pruebas de firewall):**. Incluye listas clientes y servidores, las 3 reglas, servicios desactivados, y available-from (primero address, deprecado)
 
 **Qué no:**
 - Es un laboratorio en VirtualBox, con un solo router y un solo cliente.
