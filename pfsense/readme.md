@@ -40,13 +40,13 @@ Durante todas las pruebas el PC anfitrión tuvo una VPN (NordVPN) encendida, sal
 
 | Tema | Resultado | Estado |
 |---|---|---|
-| SSH | Habilitado; puerto 22 abierto solo desde `192.168.56.0/24` (interfaz GESTION) | Verificado |
+| SSH | Habilitado; puerto 22 abierto solo desde `192.168.56.1` desde el 24/11/2026 (antes `192.168.56.0/24`) (interfaz GESTION) | Verificado |
 | NAT saliente | Modo automático; traducción observada en la tabla de estados | Verificado |
 | DNS | Único servidor `10.0.2.3` y reenvío activado; con la VPN encendida fallan `1.1.1.1` y `8.8.8.8` | Verificado; mecanismo de la VPN sin determinar |
 | Reglas de la LAN | 6 reglas propias: ping, DNS y NTP al gateway, SNMP desde librenms (23/11/2026), bloqueo a pfSense y bloqueo a la red de casa | Verificado; el puerto 22 con el antilockout activo no se probó |
 | Antilockout | Desactivado; la administración queda solo por GESTION | Verificado |
-| Respaldo | Restauración probada con un cambio real | Verificado |
-| Reinicio | Unos 1 min 40 s; todo volvió igual | Verificado |
+| Respaldo | Restauración probada con un cambio real, repetida el 24/11/2026 con la config vigente (pruebas, 7.1) | Verificado |
+| Reinicio | Unos 1 min 40 s; todo volvió igual, el 24/11/2026, 92 s | Verificado |
 | Reservas DHCP | 3 reservas documentadas | Verificado |
 | NTP interno | pfSense da la hora a `glpi`, `librenms` y `chr` | Verificado |
 
@@ -58,7 +58,7 @@ Antes de tocar nada: snapshot de VirtualBox `pfsense-inicio` (VM apagada) y copi
 
 pfSense se administraba por web desde GESTION (solo TCP 443). Para sumar SSH:
 
-1. Regla en la pestaña GESTION, copia de la de 443 con el puerto cambiado: Pass · TCP · origen `192.168.56.0/24` · destino GESTION address · puerto 22 · `ssh desde gestion` ([captura](capturas/02-regla-gestion-ssh.png)).
+1. Regla en la pestaña GESTION, copia de la de 443 con el puerto cambiado: Pass · TCP · origen `192.168.56.0/24` · destino GESTION address · puerto 22 · desde el 24/11/2026, origen 192.168.56.1, igual que la de 443·  `ssh desde gestion` ([captura](capturas/02-regla-gestion-ssh.png)).
 2. System → Advanced → Admin Access → Enable Secure Shell, autenticación por contraseña ([captura](capturas/01-ssh-habilitado.png)). El log mostró que pfSense generó las llaves SSH que faltaban.
 3. `ssh admin@192.168.56.11` desde PowerShell conectó a la primera. Comparé la huella ED25519 que mostró el cliente con la que da `ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub` en pfSense, y coincidieron.
 4. `sockstat -4 -l -p 22` muestra `sshd` escuchando en `*:22`, es decir, en todas las direcciones IPv4 ([captura](capturas/03-sshd-escucha.png)). El servicio no se limita por interfaz: quién llega lo deciden las reglas.
