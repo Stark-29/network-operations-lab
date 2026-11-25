@@ -1,7 +1,7 @@
 # Direccionamiento del Network Operations Lab
 
 Fecha: 20/11/2026  
-Actualizado: 23/11/2026
+Actualizado: 24/11/2026
 
 Todo es de laboratorio. Las IPs y las MAC son virtuales; decidir en la etapa de publicación si se dejan en el repo público.
 
@@ -72,12 +72,12 @@ Si se regeneran las MAC de una VM, hay que actualizar su reserva. La IP va en el
 
 | Servicio | Dirección |
 |---|---|
-| Web de pfSense | `https://192.168.56.11` (certificado autofirmado) |
-| Winbox o SSH al CHR | `192.168.56.12` |
+| Web de pfSense | `https://192.168.56.11` (solo desde 192.168.56.1) (certificado autofirmado) |
+| Winbox o SSH al CHR | `192.168.56.12` (solo desde 192.168.56.1) |
 | LibreNMS | `http://192.168.56.13` |
 | GLPI | `http://192.168.56.14` |
 | SSH a las Ubuntu | `ssh robert@192.168.56.13` y `.14`; `cliente1` por su IP de gestión |
-| SSH a pfSense | `ssh admin@192.168.56.11` |
+| SSH a pfSense | `ssh admin@192.168.56.11`(solo desde 192.168.56.1) |
 
 En mi PC, el archivo `.ssh/config` define alias para entrar por GESTION: `ssh pfsense`, `ssh chr`, `ssh libre`, `ssh glpi` y `ssh cliente`. Ese archivo es local y no está en el repo.
 
@@ -118,3 +118,9 @@ Sin las rutas de `glpi` y `librenms`, sus respuestas a los clientes iban a pfSen
 - Dirección web de LibreNMS: `http://192.168.56.13`. `server_name` de Nginx: `192.168.56.13 192.168.10.13`. `base_url` y `APP_URL`: `http://192.168.56.13`.
 - Alertas: `librenms` sale a `api.telegram.org` (HTTPS) por pfSense, con la regla `lab a internet` y el NAT de pfSense (`10.0.2.15`). La salida a Telegram depende de pfSense.
 - Ya no se monitorea `192.168.1.102` ni el router de casa (la red del laboratorio no ve la red de casa).
+
+## 11. Filtrado en el CHR
+
+- Listas clientes (10.10.10.0/24 y 10.10.20.0/24) y servidores (192.168.10.13 y 192.168.10.14).
+- Las 3 reglas de forward, en orden.
+- Los servicios ssh y winbox restringidos a 192.168.56.1/32.

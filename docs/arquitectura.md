@@ -1,8 +1,8 @@
 # Arquitectura del Network Operations Lab
 
 Fecha: 20/11/2026  
-Actualizado: 23/11/2026  
-Estado: red integrada, probada de punta a punta y monitoreada (SNMP v2c en pfSense, CHR y `librenms`, ping a `glpi` y alertas por Telegram). Faltan las pruebas de firewall y los incidentes. Detalle de la integración: [integracion/readme.md](../integracion/readme.md). Detalle del monitoreo: [librenms/readme.md](../librenms/readme.md).
+Actualizado: 24/11/2026  
+Estado: red integrada, probada de punta a punta y monitoreada (SNMP v2c en pfSense, CHR y `librenms`, ping a `glpi` y alertas por Telegram). Pruebas de firewall hechas (integracion/pruebas.md); faltan los incidentes. Detalle de la integración: [integracion/readme.md](../integracion/readme.md). Detalle del monitoreo: [librenms/readme.md](../librenms/readme.md).
 
 > **Aviso de alcance.** Es un laboratorio en VirtualBox, no una red de producción. Se armó con guías y ayuda de una IA. Nada de lo que está aquí es experiencia en producción.
 
@@ -16,45 +16,55 @@ Una red pequeña protegida por **pfSense**, con un router **MikroTik CHR** detr�
 
 Tráfico del laboratorio:
 
+
 ```
-                        Internet
-                           │
-                 [NAT de VirtualBox]  10.0.2.0/24
-                           │
-                     em0  10.0.2.15
-                   ┌───────┴───────┐
-                   │    pfsense    │   (el NAT se hace aquí, una sola vez)
-                   └───────┬───────┘
-                     em1  192.168.10.1
-                           │
- ═════════ lab-core  192.168.10.0/24 ═════════════════
-        │                 │                  │
-   librenms .13        glpi .14        chr (ether1) .12
-                                           │
-                                     ┌─────┴─────┐
-                                     │    chr    │   (solo enruta)
-                                     └─────┬─────┘
-                                  ether2  10.10.10.1
-                                  vlan10  10.10.20.1
-                                           │
- ═════════ lab-clientes  10.10.10.0/24 ═══════════════
-                                           │
-                                       cliente1
-                              (DHCP del CHR: .100 a .200)
-                   enp0s3.10 = VLAN 10 (10.10.20.0/24), IP 10.10.20.2
+
+```
+                    Internet
+                       │
+             [NAT de VirtualBox]  10.0.2.0/24
+                       │
+                 em0  10.0.2.15
+               ┌───────┴───────┐
+               │    pfsense    │   (el NAT se hace aquí, una sola vez)
+               └───────┬───────┘
+                 em1  192.168.10.1
+                       │
+
+```
+
+═════════ lab-core  192.168.10.0/24 ═════════════════
+│                 │                  │
+librenms .13        glpi .14        chr (ether1) .12
+│
+┌─────┴─────┐
+│    chr    │   (solo enruta)
+└─────┬─────┘
+ether2  10.10.10.1
+vlan10  10.10.20.1
+│
+═════════ lab-clientes  10.10.10.0/24 ═══════════════
+│
+cliente1
+(DHCP del CHR: .100 a .200)
+enp0s3.10 = VLAN 10 (10.10.20.0/24), IP 10.10.20.2
+
 ```
 
 Rutas estáticas: pfSense, `librenms` y `glpi` envían `10.10.10.0/24` y `10.10.20.0/24` al CHR (`192.168.10.12`). Detalle en [direccionamiento](direccionamiento.md#8-rutas-estáticas).
 
 Red de gestión, aparte (solo-anfitrión):
 
+
 ```
-   PC anfitrión  192.168.56.1
-         │
- ═════ gestion  192.168.56.0/24 ═════════════════════════
-    │ .11        │ .12         │ .13        │ .14       │ DHCP
- pfsense         chr        librenms      glpi       cliente1
- (em2)         (ether3)     (enp0s8)     (enp0s8)    (enp0s8)
+
+PC anfitrión  192.168.56.1
+│
+═════ gestion  192.168.56.0/24 ═════════════════════════
+│ .11        │ .12         │ .13        │ .14       │ DHCP
+pfsense         chr        librenms      glpi       cliente1
+(em2)         (ether3)     (enp0s8)     (enp0s8)    (enp0s8)
+
 ```
 
 ## 3. Redes
@@ -73,7 +83,7 @@ El detalle de IPs está en `direccionamiento.md`.
 | VM en VirtualBox | Rol | RAM | Adaptadores |
 |---|---|---|---|
 | `pfsense` | Borde: firewall, NAT, DNS, DHCP y NTP de `lab-core`; SNMP solo para `librenms` | 1 GB | NAT, `lab-core`, solo-anfitrión |
-| `chr` | Router interno (MikroTik CHR), DHCP de `lab-clientes` y relevo DNS; SNMP solo para `librenms` | 1 GB | `lab-core`, `lab-clientes`, solo-anfitrión |
+| `chr` | Router interno (MikroTik CHR), DHCP de `lab-clientes` y relevo DNS; SNMP solo para `librenms`; filtra clientes hacia servidores; SSH y Winbox solo desde `192.168.56.1` | 1 GB | `lab-core`, `lab-clientes`, solo-anfitrión |
 | `librenms` | Monitoreo: SNMP v2c, ping y alertas a Telegram | 2 GB | `lab-core`, solo-anfitrión |
 | `glpi` | Tickets e inventario | 1 GB | `lab-core`, solo-anfitrión |
 | `cliente1` | Cliente de prueba (con VLAN 10 persistente) | 1 GB | `lab-clientes`, solo-anfitrión |
@@ -95,13 +105,15 @@ RouterOS del chr: 7.25.1 (verificado el 20/11/2026). Licencia del CHR: gratuita,
 
 **NAT una sola vez, en pfSense.** El CHR enruta y no enmascara. Con doble NAT, pfSense veía todo como `192.168.10.12`; ahora ve el origen real (`10.10.10.x` y `10.10.20.x`) en estados y logs. pfSense tiene el gateway `CHR_LAB` (`192.168.10.12`) y rutas estáticas hacia las dos redes de clientes; su NAT automático ya las cubre.
 
-**Rutas estáticas también en `glpi` y `librenms`.** Comparten segmento con el CHR. Sin rutas hacia las redes de clientes, respondían a pfSense, que descartaba las respuestas (enrutamiento asimétrico; explicación probable, no verificada en pf). Con las rutas, el tráfico entre clientes y servidores va por el CHR sin pasar por pfSense; por eso hoy el CHR, que no tiene reglas, es el único punto donde se podría filtrar.
+**Rutas estáticas también en `glpi` y `librenms`.** Comparten segmento con el CHR. Sin rutas hacia las redes de clientes, respondían a pfSense, que descartaba las respuestas (enrutamiento asimétrico; explicación probable, no verificada en pf). Con las rutas, el tráfico entre clientes y servidores va por el CHR sin pasar por pfSense; por eso el CHR es el punto donde se filtra.
+
+El CHR filtra entre clientes y servidores (24/11/2026): 3 reglas de forward (respuestas, clientes solo a la web de glpi, descarte de clientes hacia servidores), ftp, www, api y api-ssl desactivados, y ssh y winbox con available-from=192.168.56.1/32. No hay regla final de descarte; ver pruebas.md.
 
 **Reglas de la LAN con el alias `LAB_NETS`** (`lab-core`, `lab-clientes` y la VLAN 10). Un solo lugar donde se listan las redes del laboratorio. `lab no ve la casa` la aplica pfSense, con el origen real.
 
 **DNS de `lab-clientes`: el CHR como relevo.** `cliente1` pregunta al CHR (`10.10.10.1`), el CHR a pfSense (su DNS dinámico) y pfSense a `10.0.2.3`. Evita `8.8.8.8`, que con la VPN del PC no responde. `allow-remote-requests=yes` deja el DNS del CHR abierto en todas sus interfaces.
 
-**pfSense se administra solo por GESTION.** Se desactivó la regla oculta de antilockout y se bloquea lo que la LAN dirija a pfSense salvo ping, DNS, NTP y SNMP (UDP 161) desde `librenms`. Los equipos de `lab-core` no pueden administrarlo; el único camino es la red de gestión, con el snapshot como respaldo si algo falla.
+**pfSense se administra solo por GESTION.** Se desactivó la regla oculta de antilockout y se bloquea lo que la LAN dirija a pfSense salvo ping, DNS, NTP y SNMP (UDP 161) desde `librenms`. Los equipos de `lab-core` no pueden administrarlo; el único camino es la red de gestión, con el snapshot como respaldo si algo falla. Desde el 24/11/2026 las reglas de GESTION admiten solo `192.168.56.1` (antes toda la `192.168.56.0/24`).
 
 **DNS de pfSense: `10.0.2.3`.** Con la VPN del PC anfitrión encendida, `1.1.1.1` y `8.8.8.8` no responden desde el laboratorio, pero `10.0.2.3` (DNS interno del NAT de VirtualBox) sí. pfSense lo usa como único servidor, con reenvío activado y sin aceptar la lista que llega por DHCP en la WAN.
 
@@ -115,7 +127,7 @@ RouterOS del chr: 7.25.1 (verificado el 20/11/2026). Licencia del CHR: gratuita,
 
 - Redes internas: `lab-core` y `lab-clientes`.
 - VMs y hostnames: `pfsense`, `chr`, `librenms`, `glpi`, `cliente1`. Minúsculas, sin prefijo. pfSense mantiene `pfSense` como hostname interno (cosmético).
-- Snapshots: `etapa-estado`. Vigente: `monitoreo-listo` (`pfsense`, `chr` y `librenms`, 23/11/2026); `glpi` y `cliente1` siguen en `integrado-base` (22/11/2026). Anteriores, que se conservan como puntos de vuelta y por los clones enlazados: `integrado-base` en `pfsense`, `chr` y `librenms`, `diseno-listo` (cuatro VMs), `plantilla-base` (`cliente1`, base para clones), `reglas-listo` (`pfsense`), `ntp-listo` (`glpi`, `librenms` y `chr`), `pfsense-inicio`, `gestion-lista`, `pfsense-base-listo`, `chr-lab-listo`, `glpi-listo` y `cliente2-plantilla-base`.
+- Snapshots: `etapa-estado`. Vigente: `pruebas-listo` (`pfsense`, `chr` y `cliente1`, 24/11/2026); `librenms` sigue en `monitoreo-listo` y `glpi` en `integrado-base`. Anteriores, que se conservan como puntos de vuelta y por los clones enlazados: `monitoreo-listo` (`pfsense` y `chr`), `integrado-base` en `pfsense`, `chr`, `librenms` y `cliente1`, `diseno-listo` (cuatro VMs), `plantilla-base` (`cliente1`, base para clones), `reglas-listo` (`pfsense`), `ntp-listo` (`glpi`, `librenms` y `chr`), `pfsense-inicio`, `gestion-lista`, `pfsense-base-listo`, `chr-lab-listo`, `glpi-listo` y `cliente2-plantilla-base`.
 
 ## 7. Hora
 
@@ -128,7 +140,7 @@ Todos los equipos en `America/Caracas` (UTC-4).
 | glpi y librenms | `192.168.10.1` (pfSense) |
 | cliente1 | `192.168.10.1` (pfSense), recibido en el lease DHCP del CHR |
 
-pfSense es el servidor de hora interno de `chr`, `glpi` y `librenms` (regla UDP 123 en la LAN). `cliente1` también se sincroniza con `192.168.10.1` (verificado el 22/11/2026 con `timedatectl timesync-status`, estrato 3): el lease DHCP del CHR trae `NTP=192.168.10.1`, aunque el `ntp-server` de la red DHCP del CHR está vacío (por qué lo envía no está determinado). Los documentos anteriores decían que usaba el de Ubuntu por defecto. Si pfSense se apaga, `chr`, `glpi` y `librenms` pierden su fuente de hora. Todos marcan la misma hora.
+pfSense es el servidor de hora interno de `chr`, `glpi` y `librenms` (regla UDP 123 en la LAN). `cliente1` también se sincroniza con `192.168.10.1` (verificado el 22/11/2026 con `timedatectl timesync-status`, estrato 3; el 24/11/2026, estrato 2): el lease DHCP del CHR trae `NTP=192.168.10.1`, aunque el `ntp-server` de la red DHCP del CHR está vacío (por qué lo envía no está determinado). Los documentos anteriores decían que usaba el de Ubuntu por defecto. Si pfSense se apaga, `chr`, `glpi` y `librenms` pierden su fuente de hora. Todos marcan la misma hora.
 
 GLPI: además de la zona del sistema, se fijó `date.timezone = America/Caracas` en el `php.ini` de Apache y en el de consola. Antes, `cron.log` y `event.log` marcaban UTC.
 
@@ -145,11 +157,11 @@ Las 5 VMs caben a la vez. Se descarta el límite de 3. El margen, de unos 4 a 5 
 
 ## 9. Estado actual y lo que queda abierto
 
-- **NAT:** una sola traducción, en pfSense (decidido y verificado el 22/11/2026). El CHR no tiene reglas de NAT ni de filtro. Detalle y pruebas: [integracion/readme.md](../integracion/readme.md).
-- **Filtrado:** el tráfico entre clientes y servidores pasa por el CHR sin reglas y no atraviesa pfSense. Es un límite conocido del diseño actual.
+- **NAT:** una sola traducción, en pfSense (decidido y verificado el 22/11/2026). El CHR no tiene reglas de NAT. Detalle y pruebas: [integracion/readme.md](../integracion/readme.md).
+- **Filtrado:** el tráfico entre clientes y servidores pasa por el CHR y no atraviesa pfSense; desde el 24/11/2026 el CHR tiene 3 reglas de forward y administración solo desde `192.168.56.1`, sin regla final de descarte.
 - La regla `dst-nat` del puerto 2222 hacia SSH de `cliente1` nunca funcionó (causa no determinada); se eliminó sin resolver, porque la gestión aparte ya cubre ese acceso.
 - **Monitoreo:** hecho el 22 y 23/11/2026. LibreNMS tiene cuatro dispositivos por sus IPs de `lab-core`; se borraron el dispositivo viejo (`192.168.1.102`) y el router de casa, y `server_name`, `base_url` y `APP_URL` quedaron con `192.168.56.13`. Detalle y pruebas: [librenms/readme.md](../librenms/readme.md).
-- pfSense se administra solo por la interfaz `GESTION` (web `https://192.168.56.11` y SSH; TCP 443 y 22 desde `192.168.56.0/24`). La regla oculta de antilockout está desactivada y la LAN no puede administrarlo (solo `librenms` llega a pfSense, y solo por SNMP, UDP 161). Detalle y pruebas: [pfsense/readme.md](../pfsense/readme.md).
+- pfSense se administra solo por la interfaz `GESTION` (web `https://192.168.56.11` y SSH; TCP 443 y 22 desde `192.168.56.1`). La regla oculta de antilockout está desactivada y la LAN no puede administrarlo (solo `librenms` llega a pfSense, y solo por SNMP, UDP 161). Detalle y pruebas: [pfsense/readme.md](../pfsense/readme.md).
 - **Alertas:** solo la regla `Device Down! Due to no ICMP response.` avisa por Telegram. Las demás reglas (`Device Down (SNMP unreachable)`, `Device rebooted`, puertos, latencia) levantan la alerta en el panel pero no notifican. Es un límite conocido.
 
 ## 10. Qué no se verificó
@@ -161,8 +173,11 @@ Las 5 VMs caben a la vez. Se descarta el límite de 3. El margen, de unos 4 a 5 
 - Por qué el DHCP del CHR entrega `NTP=192.168.10.1` a `cliente1` si el `ntp-server` de su red DHCP está vacío.
 - Por qué el primer ping de la VLAN 10, justo después de `netplan apply`, tardó 2294 ms (no se reprodujo).
 - El enrutamiento asimétrico de `cliente1` hacia `glpi` y `librenms`: la explicación (pfSense descarta respuestas de conexiones que no vio empezar) es probable pero no se verificó en las reglas de pf.
-- Por qué el CHR se quedó en *load system* al encenderlo tras apagarlo el 23/11/2026 (un reinicio desde VirtualBox lo recuperó en unos 20 s).
+- Por qué el CHR se quedó en *load system* al encenderlo tras apagarlo el 23/11/2026 (un reinicio desde VirtualBox lo recuperó en unos 20 s); no se reprodujo en dos arranques el 24/11/2026.
 - Que los unos 50 s entre la detección de un cambio de estado y el aviso se deban a un motor de alertas que corre una vez por minuto: coincide en 4 de 4 observaciones, pero no se revisó la configuración del planificador.
 - El rechazo de SNMP desde una IP no autorizada (pfSense, CHR y `librenms`): solo se probó el caso permitido.
 - Qué pasa con las alertas si pfSense cae: la salida a Telegram depende de pfSense y no se probó.
 - Por qué la caída de 3 minutos del primer laboratorio de LibreNMS no alertó y la de 24 sí: lo explica el intervalo de chequeo (ver [librenms/readme.md](../librenms/readme.md)), pero ese laboratorio no anotó las horas y no se reprodujo el caso exacto.
+- Por qué el primer traceroute a internet del 24/11/2026 no obtuvo respuesta en los saltos 3 y 4 y tardó unos 58 ms en los saltos 1 y 2, y por qué la primera lectura del log no mostraba los bloqueos hacia 10.0.2.15 y 192.168.1.1: no se reprodujeron al repetirlos esa noche.
+
+```
