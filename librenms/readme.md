@@ -7,6 +7,8 @@ Monitoreo con **LibreNMS** de un laboratorio en VirtualBox: una red pequeña pro
 Diseño completo de la red: [arquitectura](../docs/arquitectura.md) y [direccionamiento](../docs/direccionamiento.md). Capturas en [`capturas/`](capturas/). La instalación de LibreNMS y los primeros ejercicios, antes de rediseñar la red, están en [`primer-laboratorio.md`](primer-laboratorio.md).
 
 > **Nota de transparencia:** es un laboratorio en VirtualBox, seguido con ayuda de una IA (asistente de chat). No es experiencia en producción y no he operado LibreNMS en una red real ni con equipos de un ISP. Lo que no pude verificar está marcado como "no verificado" o "no probado", y las causas que no determiné quedan como "causa no determinada".
+> 
+> Nota de actualización (25/11/2026). En la etapa de incidentes apagué el CHR y pfSense con LibreNMS encendido (incidente-01 e incidente-03). Con el CHR apagado, LibreNMS avisó por Telegram. Con pfSense apagado, LibreNMS marcó el Down pero el aviso no salió: la resolución DNS de api.telegram.org agotó los 10 s. Ver la sección 6 y "Qué no se hizo".
 
 ## Entorno
 
@@ -43,8 +45,9 @@ Durante todas las pruebas el PC anfitrión tuvo una VPN (NordVPN) encendida, com
 | Dispositivos | 4 por IPs de `lab-core`: 3 con SNMP y `glpi` solo por ping | Verificado |
 | Gráficas | CPU, memoria y tráfico de `pfsense`; tráfico por interfaz del `chr` | Verificado |
 | Alertas | Telegram con una Operación asignada a la regla de caída por ICMP; incluye el aviso de recuperación | Verificado |
-| Tiempo de detección | Chequeo cada 5 minutos; aviso unos 50 s después de detectar el cambio | Verificado en 3 pruebas; la causa de los 50 s, no verificada |
+| Tiempo de detección | Chequeo cada 5 minutos; aviso entre 49 y 55 s después de detectar el cambio | Verificado en 7 transiciones (4 el 23/11 y 3 el 25/11); la causa de esos ~50 s, no verificada |
 | Caída corta sin chequeo dentro | No deja Down ni alerta; solo un aviso de reinicio | Verificado (una vez) |
+| Caída de pfSense | LibreNMS la marca Down (19:40:14), pero el aviso a Telegram no sale: falla la resolución DNS de api.telegram.org; al volver pfSense solo llega la recuperación | Verificado (una vez, 25/11/2026) |
 
 ## 1. Limpieza y dirección web
 
@@ -139,6 +142,17 @@ Lo que observé:
 
 **Lo que explica del primer laboratorio.** Allí una caída de 3 minutos del router no generó alerta y una de 24 minutos sí. Lo más probable es que fuera esto mismo, pero aquel laboratorio no anotó las horas de los chequeos, así que no reproduje el caso exacto: queda como explicación probable.
 
+### Pruebas del 25/11/2026 (etapa de incidentes)
+
+| Prueba | Apagado | Encendido | Down detectado | Alerta (registro) | Up detectado | Recuperación |
+|---|---|---|---|---|---|---|
+| 4. CHR, larga | 18:05:38 | 18:45:07 (arrancó ≈18:45:32) | 18:10:13 | 18:11:02 | 18:50:07 | 18:51:02 |
+| 5. pfSense | 19:38:58 | 19:48:04 (arrancó ≈19:48:38) | 19:40:14 | no salió (error 19:41:14) | 19:50:08 | 19:51:03 |
+
+- **Prueba 4.** El apagado cayó 25 s después de un chequeo (18:05:13) y se vio 4 min 35 s más tarde. El encendido cayó justo después del chequeo de las 18:45, con el CHR aún arrancando, y el Up se vio a las 18:50:07, unos 4 min 35 s después de que arrancara: el panel va con retraso en los dos sentidos. Del apagado a la alerta pasaron 5 min 24 s, cerca del peor caso estimado (unos 6 minutos). El CHR arrancó sin colgarse.
+- **Prueba 5.** LibreNMS vio la caída 76 s después de apagar pfSense. El aviso falló con `cURL error 28: Resolving timed out after 10000 milliseconds` al contactar `api.telegram.org`, y no hubo reintento visible. Detalle: [incidente-03](../incidentes/incidente-03.md).
+- **Avisos.** Los tres avisos que salieron el 25/11 tardaron 49, 55 y 55 s desde la detección. Con los cuatro del 23/11 son 7 de 7 entre 49 y 55 s, todos registrados en el segundo 02 o 03 de un minuto (17:36:03, 17:46:02, 18:06:03, 18:11:03, 18:11:02, 18:51:02 y 19:51:03). Sigue siendo consistente con un motor de alertas que corre una vez por minuto, sin verificar.
+
 ## Problemas y rarezas
 
 1. **Dirección web con la IP vieja:** `server_name` y `base_url` apuntaban a `192.168.1.102` y `.env` no tenía `APP_URL` (sección 1).
@@ -147,6 +161,7 @@ Lo que observé:
 4. **El CHR se colgó al arrancar** tras la primera prueba: causa no determinada (sección 6).
 5. **`/snmp print` muestra la comunidad** en `trap-community`: la salida se redacta antes de publicarla.
 6. **`validate.php` con tres `FAIL`** el 22/11/2026 (sección 1).
+7. **El registro de eventos mostró el token del bot** dentro del mensaje de error de Telegram (sección 6): lo regeneré con /revoke y tapé las capturas.
 
 ## Lo que aprendí
 
@@ -156,6 +171,8 @@ Lo que observé:
 - Antes de pegar la salida de un comando en una captura o en un repo, hay que saber si imprime secretos (aquí, `/snmp print`).
 - Un comando que se queda esperando entrada (`read`) se ejecuta solo y se comprueba antes de seguir; lo que se pegue después puede acabar dentro de la variable.
 - Detectar la caída es una cosa y avisar es otra: entre el Down de LibreNMS y el mensaje en el celular pasó casi un minuto más.
+- Detectar y avisar son caminos distintos: LibreNMS vio caer a pfSense, pero el aviso depende de pfSense y no llegó. Un aviso que falla no hace ruido.
+- Un mensaje de error de transporte puede llevar credenciales: la URL del error de Telegram incluía el token del bot. Se revisa antes de copiarla o capturarla.
 
 ## Qué no se hizo
 
@@ -164,7 +181,7 @@ Lo que observé:
 - Probar el rechazo de una consulta SNMP desde una IP no autorizada, en pfSense, el CHR o `librenms`.
 - Solo la regla de caída por ICMP notifica; `Device Down (SNMP unreachable)`, `Device rebooted`, puertos y latencia no.
 - Activar el ping rápido (chequeo cada minuto): el chequeo es cada 5 minutos.
-- Alertas cuando cae pfSense: la salida a Telegram pasa por pfSense, así que esa alerta no podría salir. Lo deduzco del diseño; no lo probé.
+- Un camino de avisos que no dependa de pfSense: el 25/11/2026 comprobé que, con pfSense apagado, LibreNMS marca el Down pero el aviso a Telegram no sale ([incidente-03](../incidentes/incidente-03.md)).
 - SNMP en `glpi`: solo se monitorea por ping.
 - Actualizar LibreNMS: el aviso de "más de 24 horas sin actualizar" quedó sin atender.
 - Sin experiencia en producción con LibreNMS ni con equipos de un ISP.
