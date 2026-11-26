@@ -120,4 +120,4 @@ Los incidentes [01](incidente-01.md), 02 y [03](incidente-03.md) tienen el mismo
 
 Archivos `.png` en `capturas/`. Los nombres dicen `ticket-02` por ser el incidente 02; en GLPI es el ticket n.º 4.
 
-`18-chr-dns-antes`, `19-glpi-ticket-02-creado`, `20-cliente1-sintomas-dns-roto`, `21-chr-dns-causa`, `22-librenms-sin-alertas-dns`, `23-cliente1-dns-restaurado`, `24-glpi-ticket-02-cerrado`, `25-glpi-articulo-02` y `34-librenms-historial-alertas`.
+[`18-chr-dns-antes`](capturas/18-chr-dns-antes.png), [`19-glpi-ticket-02-creado`](capturas/19-glpi-ticket-02-creado.png), [`20-cliente1-sintomas-dns-roto`](capturas/20-cliente1-sintomas-dns-roto.png), [`21-chr-dns-causa`](capturas/21-chr-dns-causa.png), [`22-librenms-sin-alertas-dns`](capturas/22-librenms-sin-alertas-dns.png), [`23-cliente1-dns-restaurado`](capturas/23-cliente1-dns-restaurado.png), [`24-glpi-ticket-02-cerrado`](capturas/24-glpi-ticket-02-cerrado.png), [`25-glpi-articulo-02`](capturas/25-glpi-articulo-02.png) y [`34-librenms-historial-alertas`](capturas/34-librenms-historial-alertas.png).
