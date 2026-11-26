@@ -1,7 +1,7 @@
 # Direccionamiento del Network Operations Lab
 
 Fecha: 20/11/2026  
-Actualizado: 24/11/2026
+Actualizado: 25/11/2026
 
 Todo es de laboratorio. Las IPs y las MAC son virtuales; decidir en la etapa de publicación si se dejan en el repo público.
 
@@ -116,7 +116,7 @@ Sin las rutas de `glpi` y `librenms`, sus respuestas a los clientes iban a pfSen
 - La comunidad SNMP es una sola para los tres equipos y no está en el repo.
 - Regla de pfSense (pestaña LAN): Pass, UDP, origen `192.168.10.13`, destino LAN address, puerto 161, descripción `snmp desde librenms`. Lo demás que la LAN dirija a pfSense sigue bloqueado, salvo ping, DNS y NTP.
 - Dirección web de LibreNMS: `http://192.168.56.13`. `server_name` de Nginx: `192.168.56.13 192.168.10.13`. `base_url` y `APP_URL`: `http://192.168.56.13`.
-- Alertas: `librenms` sale a `api.telegram.org` (HTTPS) por pfSense, con la regla `lab a internet` y el NAT de pfSense (`10.0.2.15`). La salida a Telegram depende de pfSense.
+- Alertas: `librenms` sale a `api.telegram.org` (HTTPS) por pfSense, con la regla `lab a internet` y el NAT de pfSense (`10.0.2.15`). La salida a Telegram depende de pfSense (con pfSense apagado el aviso no sale; probado el 25/11/2026).
 - Ya no se monitorea `192.168.1.102` ni el router de casa (la red del laboratorio no ve la red de casa).
 
 ## 11. Filtrado en el CHR
