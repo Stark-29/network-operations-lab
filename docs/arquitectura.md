@@ -1,8 +1,8 @@
 # Arquitectura del Network Operations Lab
 
 Fecha: 20/11/2026  
-Actualizado: 24/11/2026  
-Estado: red integrada, probada de punta a punta y monitoreada (SNMP v2c en pfSense, CHR y `librenms`, ping a `glpi` y alertas por Telegram). Pruebas de firewall hechas (integracion/pruebas.md); faltan los incidentes. Detalle de la integración: [integracion/readme.md](../integracion/readme.md). Detalle del monitoreo: [librenms/readme.md](../librenms/readme.md).
+Actualizado: 25/11/2026  
+Estado: red integrada, probada de punta a punta y monitoreada (SNMP v2c en pfSense, CHR y `librenms`, ping a `glpi` y alertas por Telegram). Pruebas de firewall hechas ([pruebas](../integracion/pruebas.md)) e incidentes simulados hechos ([incidentes](../incidentes/)); falta la publicación. Detalle de la integración: [integracion/readme.md](../integracion/readme.md). Detalle del monitoreo: [librenms/readme.md](../librenms/readme.md).
 
 > **Aviso de alcance.** Es un laboratorio en VirtualBox, no una red de producción. Se armó con guías y ayuda de una IA. Nada de lo que está aquí es experiencia en producción.
 
@@ -16,23 +16,17 @@ Una red pequeña protegida por **pfSense**, con un router **MikroTik CHR** detr�
 
 Tráfico del laboratorio:
 
-
-```
-
-```
-                    Internet
-                       │
-             [NAT de VirtualBox]  10.0.2.0/24
-                       │
-                 em0  10.0.2.15
-               ┌───────┴───────┐
-               │    pfsense    │   (el NAT se hace aquí, una sola vez)
-               └───────┬───────┘
-                 em1  192.168.10.1
-                       │
-
-```
-
+```text
+                   Internet
+                      │
+            [NAT de VirtualBox]  10.0.2.0/24
+                      │
+                em0  10.0.2.15
+              ┌───────┴───────┐
+              │    pfsense    │   (el NAT se hace aquí, una sola vez)
+              └───────┬───────┘
+                em1  192.168.10.1
+                      │
 ═════════ lab-core  192.168.10.0/24 ═════════════════
 │                 │                  │
 librenms .13        glpi .14        chr (ether1) .12
@@ -48,23 +42,19 @@ vlan10  10.10.20.1
 cliente1
 (DHCP del CHR: .100 a .200)
 enp0s3.10 = VLAN 10 (10.10.20.0/24), IP 10.10.20.2
-
 ```
 
 Rutas estáticas: pfSense, `librenms` y `glpi` envían `10.10.10.0/24` y `10.10.20.0/24` al CHR (`192.168.10.12`). Detalle en [direccionamiento](direccionamiento.md#8-rutas-estáticas).
 
 Red de gestión, aparte (solo-anfitrión):
 
-
-```
-
+```text
 PC anfitrión  192.168.56.1
 │
 ═════ gestion  192.168.56.0/24 ═════════════════════════
 │ .11        │ .12         │ .13        │ .14       │ DHCP
 pfsense         chr        librenms      glpi       cliente1
 (em2)         (ether3)     (enp0s8)     (enp0s8)    (enp0s8)
-
 ```
 
 ## 3. Redes
@@ -119,15 +109,15 @@ El CHR filtra entre clientes y servidores (24/11/2026): 3 reglas de forward (res
 
 **SNMP v2c, una sola comunidad, limitada por origen.** `librenms` consulta por SNMP a `pfsense`, `chr` y a sí mismo. La comunidad es una sola para los tres, no está en el repo y viaja sin cifrar (v2c); por eso cada equipo la acepta solo desde `192.168.10.13`: en pfSense lo hace la regla `snmp desde librenms` (UDP 161) y el servicio queda atado a la LAN; en el CHR, el campo de direcciones de la comunidad; en `librenms`, el `snmpd.conf`. No se probó una consulta desde otra IP para ver el rechazo.
 
-**Alertas por Telegram con una Operación.** En esta versión de LibreNMS una regla sin Operación levanta la alerta pero no notifica. La Operación `notificar-telegram` manda un aviso al instante (paso 1, inicio en 0 s) por el transporte `telegram-lab`, y solo está asignada a la regla `Device Down! Due to no ICMP response.`. La salida a Telegram pasa por pfSense: si pfSense cae, la alerta de esa caída no podría salir (deducido del diseño, no probado).
+**Alertas por Telegram con una Operación.** En esta versión de LibreNMS una regla sin Operación levanta la alerta pero no notifica. La Operación `notificar-telegram` manda un aviso al instante (paso 1, inicio en 0 s) por el transporte `telegram-lab`, y solo está asignada a la regla `Device Down! Due to no ICMP response.`. La salida a Telegram pasa por pfSense: el 25/11/2026, con pfSense apagado 9 min, LibreNMS marcó el Down pero el aviso no salió (la resolución DNS de api.telegram.org agotó los 10 s) y al volver solo llegó la recuperación ([incidente-03](../incidentes/incidente-03.md)).
 
-**Chequeo cada 5 minutos.** LibreNMS comprueba el ICMP con la frecuencia del poller. En las pruebas del 23/11/2026 las detecciones cayeron entre el segundo 7 y el 13 de minutos terminados en 0 o 5, y la alerta salió unos 50 s después. Una caída más corta que el intervalo puede pasar sin dejar rastro. No se activó el ping rápido.
+**Chequeo cada 5 minutos.** LibreNMS comprueba el ICMP con la frecuencia del poller. En las pruebas del 23/11/2026 las detecciones cayeron entre el segundo 7 y el 13 de minutos terminados en 0 o 5, y la alerta salió unos 50 s después. Una caída más corta que el intervalo puede pasar sin dejar rastro. No se activó el ping rápido. El 25/11/2026 se repitió con el CHR y pfSense (Down a las 18:10:13 y 19:40:14, Up a las 18:50:07 y 19:50:08); los siete avisos que han salido quedaron registrados en el segundo 02 o 03 de un minuto.
 
 ## 6. Convención de nombres
 
 - Redes internas: `lab-core` y `lab-clientes`.
 - VMs y hostnames: `pfsense`, `chr`, `librenms`, `glpi`, `cliente1`. Minúsculas, sin prefijo. pfSense mantiene `pfSense` como hostname interno (cosmético).
-- Snapshots: `etapa-estado`. Vigente: `pruebas-listo` (`pfsense`, `chr` y `cliente1`, 24/11/2026); `librenms` sigue en `monitoreo-listo` y `glpi` en `integrado-base`. Anteriores, que se conservan como puntos de vuelta y por los clones enlazados: `monitoreo-listo` (`pfsense` y `chr`), `integrado-base` en `pfsense`, `chr`, `librenms` y `cliente1`, `diseno-listo` (cuatro VMs), `plantilla-base` (`cliente1`, base para clones), `reglas-listo` (`pfsense`), `ntp-listo` (`glpi`, `librenms` y `chr`), `pfsense-inicio`, `gestion-lista`, `pfsense-base-listo`, `chr-lab-listo`, `glpi-listo` y `cliente2-plantilla-base`.
+- Snapshots: `etapa-estado`. Vigente: `incidentes-listo` (las 5 VMs, 25/11/2026). Anteriores, que se conservan como puntos de vuelta y por los clones enlazados: `incidentes-inicio` (las 5 VMs), `incidente-02-inicio` (`chr`), `incidente-03-inicio` (`pfsense`), `monitoreo-listo` (`pfsense` y `chr`), `integrado-base` en `pfsense`, `chr`, `librenms` y `cliente1`, `diseno-listo` (cuatro VMs), `plantilla-base` (`cliente1`, base para clones), `reglas-listo` (`pfsense`), `ntp-listo` (`glpi`, `librenms` y `chr`), `pfsense-inicio`, `gestion-lista`, `pfsense-base-listo`, `chr-lab-listo`, `glpi-listo` y `cliente2-plantilla-base`.
 
 ## 7. Hora
 
@@ -152,8 +142,9 @@ PC anfitrión: Windows, i7-2600K, 16 GB de RAM.
 |---|---|---|
 | 4 VMs encendidas, sin ajustar RAM (con Firefox abierto) | 80 % | sin anotar |
 | 5 VMs encendidas, con la RAM de la sección 4 (incluye Windows y Firefox) | 70 % | menos de 20 % |
+| 5 VMs, Firefox y Telegram, durante los incidentes (25/11/2026) | 75 % al inicio (4,0 GB libres) y 81 % al final (3,1 GB libres) | sin anotar |
 
-Las 5 VMs caben a la vez. Se descarta el límite de 3. El margen, de unos 4 a 5 GB, se vuelve a medir en la etapa de incidentes (la más pesada).
+Las 5 VMs caben a la vez. Se descarta el límite de 3. Se volvió a medir el 25/11/2026, en la etapa de incidentes: el margen bajó de 4,0 a 3,1 GB libres. No averigüé a qué se debe el aumento.
 
 ## 9. Estado actual y lo que queda abierto
 
@@ -162,7 +153,7 @@ Las 5 VMs caben a la vez. Se descarta el límite de 3. El margen, de unos 4 a 5 
 - La regla `dst-nat` del puerto 2222 hacia SSH de `cliente1` nunca funcionó (causa no determinada); se eliminó sin resolver, porque la gestión aparte ya cubre ese acceso.
 - **Monitoreo:** hecho el 22 y 23/11/2026. LibreNMS tiene cuatro dispositivos por sus IPs de `lab-core`; se borraron el dispositivo viejo (`192.168.1.102`) y el router de casa, y `server_name`, `base_url` y `APP_URL` quedaron con `192.168.56.13`. Detalle y pruebas: [librenms/readme.md](../librenms/readme.md).
 - pfSense se administra solo por la interfaz `GESTION` (web `https://192.168.56.11` y SSH; TCP 443 y 22 desde `192.168.56.1`). La regla oculta de antilockout está desactivada y la LAN no puede administrarlo (solo `librenms` llega a pfSense, y solo por SNMP, UDP 161). Detalle y pruebas: [pfsense/readme.md](../pfsense/readme.md).
-- **Alertas:** solo la regla `Device Down! Due to no ICMP response.` avisa por Telegram. Las demás reglas (`Device Down (SNMP unreachable)`, `Device rebooted`, puertos, latencia) levantan la alerta en el panel pero no notifican. Es un límite conocido.
+- **Alertas:** solo la regla `Device Down! Due to no ICMP response.` avisa por Telegram. Las demás reglas (`Device Down (SNMP unreachable)`, `Device rebooted`, puertos, latencia) levantan la alerta en el panel pero no notifican. Es un límite conocido. Si pfSense cae, tampoco avisa la regla ICMP: la salida a Telegram pasa por pfSense (probado el 25/11/2026).
 
 ## 10. Qué no se verificó
 
@@ -173,11 +164,9 @@ Las 5 VMs caben a la vez. Se descarta el límite de 3. El margen, de unos 4 a 5 
 - Por qué el DHCP del CHR entrega `NTP=192.168.10.1` a `cliente1` si el `ntp-server` de su red DHCP está vacío.
 - Por qué el primer ping de la VLAN 10, justo después de `netplan apply`, tardó 2294 ms (no se reprodujo).
 - El enrutamiento asimétrico de `cliente1` hacia `glpi` y `librenms`: la explicación (pfSense descarta respuestas de conexiones que no vio empezar) es probable pero no se verificó en las reglas de pf.
-- Por qué el CHR se quedó en *load system* al encenderlo tras apagarlo el 23/11/2026 (un reinicio desde VirtualBox lo recuperó en unos 20 s); no se reprodujo en dos arranques el 24/11/2026.
-- Que los unos 50 s entre la detección de un cambio de estado y el aviso se deban a un motor de alertas que corre una vez por minuto: coincide en 4 de 4 observaciones, pero no se revisó la configuración del planificador.
+- Por qué el CHR se quedó en *load system* al encenderlo tras apagarlo el 23/11/2026 (un reinicio desde VirtualBox lo recuperó en unos 20 s); no se reprodujo en dos arranques el 24/11/2026 ni en los dos del 25/11/2026.
+- Que los unos 50 s entre la detección de un cambio de estado y el aviso se deban a un motor de alertas que corre una vez por minuto: coincide en 7 de 7 observaciones (los avisos quedaron registrados en el segundo 02 o 03 de un minuto), pero no se revisó la configuración del planificador.
 - El rechazo de SNMP desde una IP no autorizada (pfSense, CHR y `librenms`): solo se probó el caso permitido.
-- Qué pasa con las alertas si pfSense cae: la salida a Telegram depende de pfSense y no se probó.
+- Qué DNS usa librenms: se supone que pfSense, por DHCP, y por eso falló el aviso a Telegram con pfSense apagado; no se verificó con resolvectl.
 - Por qué la caída de 3 minutos del primer laboratorio de LibreNMS no alertó y la de 24 sí: lo explica el intervalo de chequeo (ver [librenms/readme.md](../librenms/readme.md)), pero ese laboratorio no anotó las horas y no se reprodujo el caso exacto.
 - Por qué el primer traceroute a internet del 24/11/2026 no obtuvo respuesta en los saltos 3 y 4 y tardó unos 58 ms en los saltos 1 y 2, y por qué la primera lectura del log no mostraba los bloqueos hacia 10.0.2.15 y 192.168.1.1: no se reprodujeron al repetirlos esa noche.
-
-```
