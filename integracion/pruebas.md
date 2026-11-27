@@ -278,9 +278,9 @@ Es coherente con los reinicios: pfSense volvió a las 13:27 y el CHR arrancó a 
 
 ## Problemas y rarezas
 
-1. **Traceroute a internet con los saltos 3 y 4 sin respuesta (A2):** el 22/11 el tercer salto fue `10.0.2.2` ([integración](readme.md), sección 7). Al repetirlo el 24/11 a las 22:24 respondió (10.0.2.2, 1,8 ms) y solo el salto 4 quedó sin respuesta. Causa de la primera ejecución: no determinada; no se reprodujo.
+1. **Traceroute a internet con los saltos 3 y 4 sin respuesta (A2):** el 22/11 el tercer salto fue `10.0.2.2` ([integración](readme.md), sección 7). Al repetirlo el 24/11 a las 22:24 respondió (10.0.2.2, 1,8 ms) y solo el salto 4 quedó sin respuesta. Causa de la primera ejecución: no determinada; no se reprodujo. Captura de la repetición: [32](capturas/pruebas/32-cliente1-repeticion-d3-e6-traceroute.png).
 2. **Latencia de los saltos 1 y 2 de ese mismo traceroute:** unos 58 ms cada uno, frente a 0,5 ms al mismo CHR en C3. Al repetir, entre 0,4 y 1,3 ms. No se reprodujo; causa no determinada.
-3. **Log de pfSense sin las entradas de D3 y E6 en la primera lectura:** aparecieron al repetirlas [sección 4](#4-log-de-pfsense). Causa no determinada. No se reprodujo.
+3. **Log de pfSense sin las entradas de D3 y E6 en la primera lectura:** aparecieron al repetirlas [sección 4](#4-log-de-pfsense). Causa no determinada. No se reprodujo. Capturas de la repetición: [con filtro](capturas/pruebas/33-pfsense-log-repeticion-con-filtro.png) y [sin filtro](capturas/pruebas/34-pfsense-log-repeticion-sin-filtro.png).
 4. **`reverse-proxy` en el 443:** figura activo en `/ip service` pero el puerto rechaza conexiones (B5 y G1). No averigüé qué hace esa entrada en RouterOS 7.25.1 sin configurarla.
 5. **Estrato NTP 2 en A5:** el 22/11 era 3. No es un fallo: depende del servidor de hora superior de pfSense, y no lo investigué.
 6. **Contadores de `ether1` por encima del ping:** hipótesis del `dpinger`, no verificada ([sección 3](#3-contadores-del-chr)).
