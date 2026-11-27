@@ -3,7 +3,7 @@
 Fecha: 20/11/2026  
 Actualizado: 25/11/2026
 
-Todo es de laboratorio. Las IPs y las MAC son virtuales; decidir en la etapa de publicación si se dejan en el repo público.
+Todo es de laboratorio. Las IPs son de rangos privados y las MAC son virtuales (VirtualBox); se dejan en el repo público porque pertenecen a un laboratorio local sin servicios publicados hacia internet.
 
 ---
 
