@@ -2,7 +2,7 @@
 
 Fecha: 20/11/2026  
 Actualizado: 25/11/2026  
-Estado: red integrada, probada de punta a punta y monitoreada (SNMP v2c en pfSense, CHR y `librenms`, ping a `glpi` y alertas por Telegram). Pruebas de firewall hechas ([pruebas](../integracion/pruebas.md)) e incidentes simulados hechos ([incidentes](../incidentes/)); falta la publicación. Detalle de la integración: [integracion/readme.md](../integracion/readme.md). Detalle del monitoreo: [librenms/readme.md](../librenms/readme.md).
+Estado: red integrada, probada de punta a punta y monitoreada (SNMP v2c en pfSense, CHR y `librenms`, ping a `glpi` y alertas por Telegram). Pruebas de firewall hechas ([pruebas](../integracion/pruebas.md)) e incidentes simulados hechos ([incidentes](../incidentes/)); publicación hecha. Detalle de la integración: [integracion/readme.md](../integracion/readme.md). Detalle del monitoreo: [librenms/readme.md](../librenms/readme.md).
 
 > **Aviso de alcance.** Es un laboratorio en VirtualBox, no una red de producción. Se armó con guías y ayuda de una IA. Nada de lo que está aquí es experiencia en producción.
 
@@ -166,7 +166,7 @@ Las 5 VMs caben a la vez. Se descarta el límite de 3. Se volvió a medir el 25/
 - El enrutamiento asimétrico de `cliente1` hacia `glpi` y `librenms`: la explicación (pfSense descarta respuestas de conexiones que no vio empezar) es probable pero no se verificó en las reglas de pf.
 - Por qué el CHR se quedó en *load system* al encenderlo tras apagarlo el 23/11/2026 (un reinicio desde VirtualBox lo recuperó en unos 20 s); no se reprodujo en dos arranques el 24/11/2026 ni en los dos del 25/11/2026.
 - Que los unos 50 s entre la detección de un cambio de estado y el aviso se deban a un motor de alertas que corre una vez por minuto: coincide en 7 de 7 observaciones (los avisos quedaron registrados en el segundo 02 o 03 de un minuto), pero no se revisó la configuración del planificador.
-- El rechazo de SNMP desde una IP no autorizada (pfSense, CHR y `librenms`): solo se probó el caso permitido.
+- La causa del rechazo de SNMP desde una IP no autorizada en el CHR y en librenms: la prueba del 24/11/2026 mostró que no responden (pfSense lo registra en su log), pero la causa se deduce de la configuración, sin log del equipo ([pruebas](../integracion/pruebas.md)).
 - Qué DNS usa librenms: se supone que pfSense, por DHCP, y por eso falló el aviso a Telegram con pfSense apagado; no se verificó con resolvectl.
 - Por qué la caída de 3 minutos del primer laboratorio de LibreNMS no alertó y la de 24 sí: lo explica el intervalo de chequeo (ver [librenms/readme.md](../librenms/readme.md)), pero ese laboratorio no anotó las horas y no se reprodujo el caso exacto.
 - Por qué el primer traceroute a internet del 24/11/2026 no obtuvo respuesta en los saltos 3 y 4 y tardó unos 58 ms en los saltos 1 y 2, y por qué la primera lectura del log no mostraba los bloqueos hacia 10.0.2.15 y 192.168.1.1: no se reprodujeron al repetirlos esa noche.
