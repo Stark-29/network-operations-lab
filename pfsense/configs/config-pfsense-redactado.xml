@@ -104,7 +104,18 @@
 			<spoofmac></spoofmac>
 		</opt1>
 	</interfaces>
-	<staticroutes></staticroutes>
+	<staticroutes>
+		<route>
+			<network>10.10.10.0/24</network>
+			<gateway>CHR_LAB</gateway>
+			<descr><![CDATA[lab-clientes por el chr]]></descr>
+		</route>
+		<route>
+			<network>10.10.20.0/24</network>
+			<gateway>CHR_LAB</gateway>
+			<descr><![CDATA[vlan 10 por el chr]]></descr>
+		</route>
+	</staticroutes>
 	<dhcpd>
 		<lan>
 			<enable></enable>
@@ -215,9 +226,21 @@
 		</lan>
 	</dhcpdv6>
 	<snmpd>
-		<syslocation></syslocation>
-		<syscontact></syscontact>
+		<syslocation>Laboratorio VirtualBox</syslocation>
+		<syscontact>Robert</syscontact>
 		<rocommunity>&lt;REDACTED&gt;</rocommunity>
+		<modules>
+			<mibii></mibii>
+			<pf></pf>
+			<hostres></hostres>
+		</modules>
+		<enable></enable>
+		<pollport>161</pollport>
+		<trapserver></trapserver>
+		<trapserverport>162</trapserverport>
+		<trapstring></trapstring>
+		<ipprotocol>inet4</ipprotocol>
+		<bindip>lan</bindip>
 	</snmpd>
 	<diag>
 		<ipv6nat>
@@ -240,6 +263,40 @@
 	<filter>
 		<rule>
 			<id></id>
+			<tracker>1795408243</tracker>
+			<type>pass</type>
+			<interface>lan</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statepolicy></statepolicy>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<protocol>udp</protocol>
+			<source>
+				<address>192.168.10.13</address>
+			</source>
+			<destination>
+				<network>lanip</network>
+				<port>161</port>
+			</destination>
+			<descr><![CDATA[snmp desde librenms]]></descr>
+			<updated>
+				<time>1795408243</time>
+				<username><![CDATA[admin@192.168.56.1 (Local Database)]]></username>
+			</updated>
+			<created>
+				<time>1795408243</time>
+				<username><![CDATA[admin@192.168.56.1 (Local Database)]]></username>
+			</created>
+		</rule>
+		<rule>
+			<id></id>
 			<tracker>1795297940</tracker>
 			<type>pass</type>
 			<interface>lan</interface>
@@ -257,7 +314,7 @@
 			<protocol>icmp</protocol>
 			<icmptype>echoreq</icmptype>
 			<source>
-				<network>lan</network>
+				<address>LAB_NETS</address>
 			</source>
 			<destination>
 				<network>lanip</network>
@@ -268,7 +325,7 @@
 				<username><![CDATA[admin@192.168.56.1 (Local Database)]]></username>
 			</created>
 			<updated>
-				<time>1795298103</time>
+				<time>1795365272</time>
 				<username><![CDATA[admin@192.168.56.1 (Local Database)]]></username>
 			</updated>
 		</rule>
@@ -290,7 +347,7 @@
 			<os></os>
 			<protocol>tcp/udp</protocol>
 			<source>
-				<network>lan</network>
+				<address>LAB_NETS</address>
 			</source>
 			<destination>
 				<network>(self)</network>
@@ -302,7 +359,7 @@
 				<username><![CDATA[admin@192.168.56.1 (Local Database)]]></username>
 			</created>
 			<updated>
-				<time>1795298188</time>
+				<time>1795365288</time>
 				<username><![CDATA[admin@192.168.56.1 (Local Database)]]></username>
 			</updated>
 		</rule>
@@ -324,21 +381,21 @@
 			<os></os>
 			<protocol>udp</protocol>
 			<source>
-				<network>lan</network>
+				<address>LAB_NETS</address>
 			</source>
 			<destination>
 				<network>lanip</network>
 				<port>123</port>
 			</destination>
 			<descr><![CDATA[ntp al gateway]]></descr>
-			<updated>
-				<time>1795306244</time>
-				<username><![CDATA[admin@192.168.56.1 (Local Database)]]></username>
-			</updated>
 			<created>
 				<time>1795306244</time>
 				<username><![CDATA[admin@192.168.56.1 (Local Database)]]></username>
 			</created>
+			<updated>
+				<time>1795365304</time>
+				<username><![CDATA[admin@192.168.56.1 (Local Database)]]></username>
+			</updated>
 		</rule>
 		<rule>
 			<id></id>
@@ -357,7 +414,7 @@
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
 			<source>
-				<network>lan</network>
+				<address>LAB_NETS</address>
 			</source>
 			<destination>
 				<network>(self)</network>
@@ -369,7 +426,7 @@
 				<username><![CDATA[admin@192.168.56.1 (Local Database)]]></username>
 			</created>
 			<updated>
-				<time>1795298232</time>
+				<time>1795365320</time>
 				<username><![CDATA[admin@192.168.56.1 (Local Database)]]></username>
 			</updated>
 		</rule>
@@ -390,7 +447,7 @@
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
 			<source>
-				<network>lan</network>
+				<address>LAB_NETS</address>
 			</source>
 			<destination>
 				<address>192.168.1.0/24</address>
@@ -402,9 +459,41 @@
 				<username><![CDATA[admin@192.168.56.1 (Local Database)]]></username>
 			</created>
 			<updated>
-				<time>1795298536</time>
+				<time>1795365336</time>
 				<username><![CDATA[admin@192.168.56.1 (Local Database)]]></username>
 			</updated>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1795365396</tracker>
+			<type>pass</type>
+			<interface>lan</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statepolicy></statepolicy>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<source>
+				<address>LAB_NETS</address>
+			</source>
+			<destination>
+				<any></any>
+			</destination>
+			<descr><![CDATA[lab a internet]]></descr>
+			<updated>
+				<time>1795365396</time>
+				<username><![CDATA[admin@192.168.56.1 (Local Database)]]></username>
+			</updated>
+			<created>
+				<time>1795365396</time>
+				<username><![CDATA[admin@192.168.56.1 (Local Database)]]></username>
+			</created>
 		</rule>
 		<rule>
 			<type>pass</type>
@@ -450,21 +539,21 @@
 			<os></os>
 			<protocol>tcp</protocol>
 			<source>
-				<address>192.168.56.0/24</address>
+				<address>192.168.56.1</address>
 			</source>
 			<destination>
 				<network>(self)</network>
 				<port>443</port>
 			</destination>
 			<descr><![CDATA[PERMITIR HTTPS GUI para GESTION]]></descr>
-			<updated>
-				<time>1795176766</time>
-				<username><![CDATA[admin@192.168.10.101 (Local Database)]]></username>
-			</updated>
 			<created>
 				<time>1795176766</time>
 				<username><![CDATA[admin@192.168.10.101 (Local Database)]]></username>
 			</created>
+			<updated>
+				<time>1795537019</time>
+				<username><![CDATA[admin@192.168.56.1 (Local Database)]]></username>
+			</updated>
 		</rule>
 		<rule>
 			<id></id>
@@ -484,21 +573,21 @@
 			<os></os>
 			<protocol>tcp</protocol>
 			<source>
-				<address>192.168.56.0/24</address>
+				<address>192.168.56.1</address>
 			</source>
 			<destination>
 				<network>(self)</network>
 				<port>22</port>
 			</destination>
 			<descr><![CDATA[ssh desde gestion]]></descr>
-			<updated>
-				<time>1795291010</time>
-				<username><![CDATA[admin@192.168.56.1 (Local Database)]]></username>
-			</updated>
 			<created>
 				<time>1795291010</time>
 				<username><![CDATA[admin@192.168.56.1 (Local Database)]]></username>
 			</created>
+			<updated>
+				<time>1795537032</time>
+				<username><![CDATA[admin@192.168.56.1 (Local Database)]]></username>
+			</updated>
 		</rule>
 		<separator>
 			<lan></lan>
@@ -506,7 +595,15 @@
 	</filter>
 	<shaper></shaper>
 	<ipsec></ipsec>
-	<aliases></aliases>
+	<aliases>
+		<alias>
+			<name>LAB_NETS</name>
+			<type>network</type>
+			<address>192.168.10.0/24 10.10.10.0/24 10.10.20.0/24</address>
+			<descr><![CDATA[redes del lab]]></descr>
+			<detail><![CDATA[lab-core||lab-clientes||vlan 10]]></detail>
+		</alias>
+	</aliases>
 	<proxyarp></proxyarp>
 	<cron>
 		<item>
@@ -629,9 +726,9 @@
 	<vlans></vlans>
 	<qinqs></qinqs>
 	<revision>
-		<time>1795306289</time>
-		<description><![CDATA[admin@192.168.56.1 (Local Database): Firewall: Rules - reordered firewall rules.]]></description>
-		<username><![CDATA[admin@192.168.56.1 (Local Database)]]></username>
+		<time>1795540675</time>
+		<description><![CDATA[(system): Overwrote previous installation of System Patches.]]></description>
+		<username><![CDATA[(system)]]></username>
 	</revision>
 	<gateways>
 		<gateway_item>
@@ -650,6 +747,15 @@
 			<weight>1</weight>
 			<ipprotocol>inet6</ipprotocol>
 			<descr><![CDATA[Interface WAN_DHCP6 Gateway]]></descr>
+			<gw_down_kill_states></gw_down_kill_states>
+		</gateway_item>
+		<gateway_item>
+			<interface>lan</interface>
+			<gateway>192.168.10.12</gateway>
+			<name>CHR_LAB</name>
+			<weight>1</weight>
+			<ipprotocol>inet</ipprotocol>
+			<descr><![CDATA[chr, router interno]]></descr>
 			<gw_down_kill_states></gw_down_kill_states>
 		</gateway_item>
 	</gateways>
