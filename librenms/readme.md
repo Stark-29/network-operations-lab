@@ -41,7 +41,7 @@ Durante todas las pruebas el PC anfitrión tuvo una VPN (NordVPN) encendida, com
 |---|---|---|
 | Dirección web | `server_name`, `base_url` y `APP_URL` con `192.168.56.13`; borré el dispositivo viejo (`192.168.1.102`) y el router de casa | Verificado (el resultado de `validate.php` está en la sección 1) |
 | SNMP v2c | `pfsense`, `chr` y `librenms` responden a `snmpget` desde `librenms` | Verificado |
-| Rechazo de SNMP desde otra IP | Las tres restricciones por IP están configuradas, pero no probé una consulta desde otra IP | No probado |
+| Rechazo de SNMP desde otra IP | Probado el 24/11/2026 desde `cliente1`: sin respuesta hacia pfSense, el CHR y `librenms`, con control desde `librenms` ([pruebas](../integracion/pruebas.md)) | Verificado en pfSense (log); en el CHR y `librenms` la causa se deduce de la configuración |
 | Dispositivos | 4 por IPs de `lab-core`: 3 con SNMP y `glpi` solo por ping | Verificado |
 | Gráficas | CPU, memoria y tráfico de `pfsense`; tráfico por interfaz del `chr` | Verificado |
 | Alertas | Telegram con una Operación asignada a la regla de caída por ICMP; incluye el aviso de recuperación | Verificado |
@@ -178,7 +178,7 @@ Lo que observé:
 
 - SNMP v3 (con autenticación y cifrado): solo v2c, con la comunidad sin cifrar.
 - Una sola comunidad para los tres equipos.
-- Probar el rechazo de una consulta SNMP desde una IP no autorizada, en pfSense, el CHR o `librenms`.
+- Confirmar con un log del equipo el rechazo de SNMP desde una IP no autorizada en el CHR y en librenms: el 24/11/2026 no hubo respuesta en los tres equipos, pero la causa se deduce de la configuración ([pruebas](../integracion/pruebas.md)).
 - Solo la regla de caída por ICMP notifica; `Device Down (SNMP unreachable)`, `Device rebooted`, puertos y latencia no.
 - Activar el ping rápido (chequeo cada minuto): el chequeo es cada 5 minutos.
 - Un camino de avisos que no dependa de pfSense: el 25/11/2026 comprobé que, con pfSense apagado, LibreNMS marca el Down pero el aviso a Telegram no sale ([incidente-03](../incidentes/incidente-03.md)).
