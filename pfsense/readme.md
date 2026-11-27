@@ -105,7 +105,7 @@ Consultando directamente desde el shell de pfSense con `drill`:
 
 pfSense evalúa las reglas de arriba hacia abajo y gana la primera que coincide; lo que ninguna permite, se bloquea. Además existe una regla oculta de **antilockout** que pfSense coloca en la LAN y que deja entrar a la web y al SSH desde la LAN pase lo que pase en las demás reglas. Como GESTION es un canal de administración aparte, la desactivé al final (System → Advanced → Admin Access) y dejé que las reglas decidan quién administra pfSense.
 
-Reglas añadidas en la pestaña LAN el 21/11/2026, todas IPv4 y con origen LAN subnets (desde el 22/11 usan el alias LAB_NETS; ver la nota de actualización) ([captura](capturas/17b-reglas-lan-final.png), con contadores):
+Reglas añadidas en la pestaña LAN el 21/11/2026, todas IPv4 y con origen LAN subnets (desde el 22/11 usan el alias LAB_NETS; ver la nota de actualización) ([captura final](capturas/17b-reglas-lan-final.png) y [captura con contadores](capturas/17-reglas-lan-contadores.png)):
 
 | Acción | Protocolo | Destino | Log | Descripción | Para qué |
 |---|---|---|---|---|---|
@@ -142,7 +142,7 @@ Pruebas desde `librenms` (VPN encendida; "—" = no repetido) ([base](capturas/1
 2. Cambio real: deshabilité `lab no ve la casa`; el ping a la casa volvió a responder ([captura](capturas/19-restauracion-antes.png)).
 3. Restauré el respaldo desde Diagnostics → Backup & Restore ([captura](capturas/20-restauracion-despues.png)). La regla volvió a estar habilitada y el ping volvió a bloquearse ([captura](capturas/21-restauracion-pings.png)). Es una restauración probada por comportamiento, no solo "el archivo se subió".
 
-**Copia para el repositorio:** [`configs/config-pfsense-redactado.xml`](configs/config-pfsense-redactado.xml), generada del respaldo final (21/11/2026, con la regla de NTP). Se reemplazó por `<REDACTED>` el **valor** de 11 elementos: las 4 llaves SSH del servidor (`xmldata`), la llave privada y el certificado de la web (`prv`, `crt`), el hash de la contraseña de admin, la comunidad SNMP y 3 nombres de algoritmo DDNS (redacción de más, inofensiva). No se borró nada más: reglas, interfaces, IPs, MAC de las reservas y descripciones siguen visibles. Esa copia **no sirve para restaurar** pfSense. Los respaldos originales quedan fuera del repo. Se generó con un script de PowerShell propio (no incluido) y dos revisiones, una por nombre de etiqueta y otra por contenido; las dos terminaron sin resultados.
+**Copia para el repositorio:** [`configs/config-pfsense-redactado.xml`](configs/config-pfsense-redactado.xml), generada de la configuración vigente (última modificación en pfSense: 24/11/2026). Se reemplazó por `<REDACTED>` el **valor** de 11 elementos: las 4 llaves SSH del servidor (`xmldata`), la llave privada y el certificado de la web (`prv`, `crt`), el hash de la contraseña de admin, la comunidad SNMP y 3 nombres de algoritmo DDNS (redacción de más, inofensiva). No se borró nada más: reglas, interfaces, IPs, MAC de las reservas y descripciones siguen visibles. Esa copia **no sirve para restaurar** pfSense. Los respaldos originales quedan fuera del repo. Se generó con un script de PowerShell propio (no incluido) y dos revisiones, una por nombre de etiqueta y otra por contenido; las dos terminaron sin resultados.
 
 ## 7. Reinicio
 
