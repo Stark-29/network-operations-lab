@@ -166,11 +166,11 @@ Según la guía, GLPI trae cuatro cuentas por defecto (`glpi`, `tech`, `normal`,
 2. Entré como `tecnico1`, me asigné el ticket y propuse una **solución**: *el cable del router está suelto, por favor conectarlo*.
 3. Volví a `usuario1` y **acepté la solución**. GLPI registró la aceptación (la captura de ese día mostraba 2026-11-19 02:31 por `usuario1`; hoy GLPI muestra 2026-11-18 22:31 para el mismo evento, 4 horas menos, lo que cuadra con que antes marcaba UTC y ahora `America/Caracas`) y un seguimiento "Solución aprobada".
 
-Con eso recorrí el flujo completo: **creación, asignación, solución propuesta, aprobación y cierre**, con el historial de cada paso visible en el propio ticket (conservo la captura de pantalla).
+Con eso recorrí el flujo completo: **creación, asignación, solución propuesta, aprobación y cierre**, con el historial de cada paso visible en el propio ticket ([captura del historial](capturas/ticket-1-historial.png)).
 
 ### 4.3 Base de conocimiento
 
-Escribí **3 artículos cortos** en la base de conocimiento, con los temas que me propusieron como ejemplo: PC sin internet, impresora que no imprime y cómo cambiar una contraseña.
+Escribí **3 artículos cortos** en la base de conocimiento, con los temas que me propusieron como ejemplo: PC sin internet, impresora que no imprime y cómo cambiar una contraseña. ([captura](capturas/glpi-articulos.png))
 
 ### 4.4 Control remoto
 
