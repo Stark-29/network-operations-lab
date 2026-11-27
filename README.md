@@ -70,7 +70,7 @@ Cada README marca qué está verificado y qué no. Lo esencial:
   <tr>
     <td align="center"><a href="incidentes/capturas/08-telegram-alerta-chr-down.png"><img src="incidentes/capturas/08-telegram-alerta-chr-down.png" width="300" alt="Alerta de Telegram por el CHR caído"></a><br><sub>Alerta de Telegram: CHR caído</sub></td>
     <td align="center"><a href="incidentes/capturas/20-cliente1-sintomas-dns-roto.png"><img src="incidentes/capturas/20-cliente1-sintomas-dns-roto.png" width="300" alt="Síntomas de DNS roto en cliente1"></a><br><sub>Síntomas del DNS roto</sub></td>
-    <td align="center"><a href="incidentes/capturas/16a-glpi-ticket-01-cerrado.png"><img src="incidentes/capturas/16a-glpi-ticket-01-cerrado.png" width="300" alt="Ticket cerrado en GLPI"></a><br><sub>Ticket cerrado en GLPI</sub></td>
+    <td align="center"><a href="incidentes/capturas/16b-glpi-ticket-01-cerrado.png"><img src="incidentes/capturas/16b-glpi-ticket-01-cerrado.png" width="300" alt="Ticket cerrado en GLPI"></a><br><sub>Ticket cerrado en GLPI</sub></td>
   </tr>
 </table>
 
