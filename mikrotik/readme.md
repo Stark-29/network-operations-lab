@@ -111,7 +111,7 @@ Comandos ejecutados en el terminal de Winbox:
 
 Qué hace cada uno: asigna la IP a `ether2`, define el rango del DHCP, crea el servidor DHCP en esa interfaz, le da gateway y DNS a los clientes, y activa NAT "masquerade" (el equivalente a NAT overload/PAT de Cisco) para que la red interna salga a internet con la IP de `ether1`.
 
-**Comprobación:** `cliente1` recibió `10.10.10.200` por DHCP, con salida a internet (ping a `8.8.8.8` y a un nombre de dominio). El contador de la regla de masquerade subía (34 paquetes en una de las lecturas). Desde el CHR, `/ping 10.10.10.200 count=3` dio 3 de 3 respuestas, con latencia de unos 0,5 ms.
+**Comprobación:** `cliente1` recibió `10.10.10.200` por DHCP, con salida a internet (ping a `8.8.8.8` y a un nombre de dominio). El contador de la regla de masquerade subía (34 paquetes en una de las lecturas). Desde el CHR, `/ping 10.10.10.200 count=3` dio 3 de 3 respuestas, con latencia de unos 0,5 ms. Capturas: [IPs del CHR](capturas/chr-ip-addresses.png), [servidor DHCP](capturas/chr-dhcp-server.png) y [red DHCP](capturas/chr-dhcp-networks.png).
 
 ### 4.7 Firewall: que el laboratorio no vea mi red de casa
 
@@ -253,11 +253,12 @@ Atajos: en el terminal de RouterOS, Tab completa comandos y `?` muestra opciones
 - **20/11/2026 (rediseño de red):** `ether1` pasó de puente a `192.168.10.12` (`lab-core`); `lab-lan` pasó a `lab-clientes`; se añadió gestión en `ether3` (`192.168.56.12`); quedó obsoleta la regla hacia la red de casa y se descartó el tope de 3 VMs encendidas (5 VMs en el lab). Detalle en [arquitectura](../docs/arquitectura.md) y [direccionamiento](../docs/direccionamiento.md).
 - **22/11/2026 (integración):** se retiró el enmascaramiento NAT del CHR (queda en pfSense), se eliminaron el `dst-nat` del puerto 2222 y el filtro hacia la red de casa, se configuró relevo DNS (`allow-remote-requests=yes` y DNS `10.10.10.1` por DHCP en lugar de `8.8.8.8`), se dejó VLAN 10 persistente desde el 22/11/2026 en `cliente1` con `netplan` y se conservó `lab-limite`. Detalle en [integración](../integracion/readme.md).
 - **23/11/2026 (monitoreo):** se renombró la comunidad SNMP por defecto (`public`), se habilitó SNMP v2c solo para `192.168.10.13` y se integró el sondeo desde LibreNMS. Detalle y pruebas en [librenms](../librenms/readme.md).
-- **24/11/2026 (pruebas de firewall):**. Incluye listas clientes y servidores, las 3 reglas, servicios desactivados, y available-from (primero address, deprecado)
+- **24/11/2026 (pruebas de firewall):** creé las listas de direcciones de clientes (`10.10.10.0/24` y `10.10.20.0/24`) y de servidores (`192.168.10.13` y `192.168.10.14`) y 3 reglas de `forward`; desactivé `ftp`, `www`, `api` y `api-ssl`; dejé `ssh` y `winbox` con `available-from=192.168.56.1/32` (primero usé `address=`, que RouterOS 7.25.1 marca como deprecado). Detalle en [pruebas](../integracion/pruebas.md).
+- **25/11/2026 (incidentes):** provoqué dos fallos en el CHR para los incidentes simulados, apagarlo ([incidente-01](../incidentes/incidente-01.md)) y desactivar `allow-remote-requests` ([incidente-02](../incidentes/incidente-02.md)); ambos se revirtieron.
 
 **Qué no:**
 - Es un laboratorio en VirtualBox, con un solo router y un solo cliente.
 - Seguí guías y comandos propuestos por una IA, copiando y pegando la mayoría.
 - No configuré bridge ni *bridge VLAN filtering*, enrutamiento dinámico, VPN, ni nada de un ISP real.
-- La VLAN en `cliente1` no es persistente.
+- La VLAN 10 en cliente1 no era persistente en el montaje original; desde el 22/11/2026 lo es (sección 8).
 - No hay una causa determinada para el fallo del reenvío de puerto.
